@@ -37,7 +37,10 @@ grid(void *data)
 void
 sidebyside(void *data)
 {
+  Geometry_t *geometries = * (Geometry_t **) data;  
+  
   printf(COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)\n");
+  D(("%d, %d", geometries[0].x, geometries[1].x));
 }
 
 void

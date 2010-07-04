@@ -124,6 +124,18 @@ window_is_maximized(Display *display, Window window)
   return false;
 }
 
+void
+unmaximize_window(Display *display, Window window)
+{
+  Atom state = XInternAtom(display, "_NET_WM_STATE", 0);
+  unsigned long horz = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", 0);
+  unsigned long vert = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", 0);
+  unsigned long full = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", 0);
+  unsigned long remove = 0;
+  
+  send_xevent(display, window, state, remove, horz, vert, full, 0);
+}
+
 
 void
 print_window(Display *display, Window win)
@@ -138,15 +150,44 @@ print_window(Display *display, Window win)
   printf("Window 0x%x on desktop %d/%d (\"%s\")\t[%d]\n", win, get_desktop(display, win)+1, 4, name, nitems);
 }
 
+void
+send_xevent(Display *display, Window window, Atom message_type,
+            unsigned long data0, unsigned long data1,
+            unsigned long data2, unsigned long data3,
+            unsigned long data4)
+{
+  D((""));
+  XEvent e;
+  
+  e.xclient.type = ClientMessage;
+  e.xclient.serial = 0;
+  e.xclient.send_event = True;
+  e.xclient.message_type = message_type;
+  e.xclient.window = window;
+  e.xclient.format = 32;
+  e.xclient.data.l[0] = data0;
+  e.xclient.data.l[1] = data1;
+  e.xclient.data.l[2] = data2;
+  e.xclient.data.l[3] = data3;
+  e.xclient.data.l[4] = data4;
+  
+  XSendEvent(display, DefaultRootWindow(display), False, 
+             SubstructureRedirectMask | SubstructureNotifyMask, &e);
+}
+
 void 
 move_window(Display *display, Window window, Geometry_t geometry)
 {
+  unmaximize_window(display, window);
+  
   XMoveWindow(display, window, geometry.x, geometry.y);
 }
 
 void 
 move_resize_window(Display *display, Window window, Geometry_t geometry)
 {
+  unmaximize_window(display, window);
+  
   XMoveResizeWindow(display, window, geometry.x, geometry.y,
                                geometry.width, geometry.height);
 }

@@ -34,6 +34,14 @@ Window root=BadWindow;
 void
 signal_handler(int sig)
 {
+  if(sig == SIGTERM || sig == SIGINT){
+    D(("Exiting"));
+    /* free allocated */
+    
+    //XCloseDisplay(display);
+    
+    exit(0);
+  }
 }
 
 int
@@ -41,11 +49,9 @@ main(int argc, char **argv)
 {
   XEvent event;
   
-  /* signal capture *
+  /* signal capture */
   signal(SIGTERM, signal_handler);
   signal(SIGINT, signal_handler);
-  signal(SIGQUIT, signal_handler);
-  */
   
   display = XOpenDisplay(NULL);
   if (display == NULL) {
@@ -87,7 +93,6 @@ main(int argc, char **argv)
   D(("%d items", size));
   
   compute_geometries(display, root);
-  //assert(bindings[0].data != NULL);
   
   for(i=0; i<size; i++){
     print_window(display, winlist[i]);
@@ -100,6 +105,9 @@ main(int argc, char **argv)
     XNextEvent(display, &event);
     dispatch(&event);
   }
+  
+  
+  XCloseDisplay(display);
   
   return EXIT_SUCCESS;
 }

@@ -26,6 +26,7 @@ Window get_active_window();
 int get_desktop(Display *, Window);
 int list_windows(Display*, Window, Window **, int);
 bool window_is_maximized(Display *, Window);
+void unmaximize_window(Display *, Window);
 
 int get_nb_desktop(Display *);
 int get_nb_screens(Display *);
@@ -35,6 +36,7 @@ void get_window_geometry(Display *, Window, Geometry_t *);
 void get_window_frame_extent(Display *, Window, int *, int *, int *, int *);
 void print_window(Display *, Window);
 
+void send_xevent(Display *, Window, Atom, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long);
 void move_window(Display *, Window, Geometry_t);
 void move_resize_window(Display *, Window, Geometry_t);
 void fill_geometry(Display *, Window, Geometry_t);
