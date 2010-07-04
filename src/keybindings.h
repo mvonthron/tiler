@@ -22,12 +22,10 @@
 #include "callbacks.h"
 
 typedef struct {
+  char *name;
   KeySym keysym;   /* default XK_VoidSymbol => NULL */
-  Geometry_t geometry;
-  
   void (*callback)(void*);
   void *data;
-  
 } Binding_t;
 
 

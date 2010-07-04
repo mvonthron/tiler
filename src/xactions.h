@@ -29,7 +29,8 @@ bool window_is_maximized(Display *, Window);
 
 int get_nb_desktop(Display *);
 int get_nb_screens(Display *);
-
+void get_workarea(Display *, Window, int *, int *, int *, int *);
+             
 void get_window_geometry(Display *, Window, Geometry_t *);
 void get_window_frame_extent(Display *, Window, int *, int *, int *, int *);
 void print_window(Display *, Window);

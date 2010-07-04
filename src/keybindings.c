@@ -31,19 +31,19 @@
 unsigned int modifiers=0;
 
 Binding_t bindings[MOVESLEN] = {
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, move,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, changescreen, NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, changescreen, NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, grid,         NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, sidebyside,   NULL},
-  {XK_VoidSymbol, {-1, -1, -1, -1}, maximize,     NULL},
+  {"top",         XK_VoidSymbol, move,         NULL},
+  {"topright",    XK_VoidSymbol, move,         NULL},
+  {"topleft",     XK_VoidSymbol, move,         NULL},
+  {"bottom",      XK_VoidSymbol, move,         NULL},
+  {"bottomright", XK_VoidSymbol, move,         NULL},
+  {"bottomleft",  XK_VoidSymbol, move,         NULL},
+  {"right",       XK_VoidSymbol, move,         NULL},
+  {"left",        XK_VoidSymbol, move,         NULL},
+  {"leftscreen",  XK_VoidSymbol, changescreen, NULL},
+  {"rightscreen", XK_VoidSymbol, changescreen, NULL},
+  {"grid",        XK_VoidSymbol, grid,         NULL},
+  {"sidebyside",  XK_VoidSymbol, sidebyside,   NULL},
+  {"maximize",    XK_VoidSymbol, maximize,     NULL},
 };
 
 

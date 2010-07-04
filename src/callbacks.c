@@ -19,6 +19,7 @@
 
 #include "tiler.h"
 #include "utils.h"
+#include "xactions.h"
 #include "callbacks.h"
 
 void

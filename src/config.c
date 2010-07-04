@@ -26,6 +26,7 @@
 
 #include "tiler.h"
 #include "utils.h"
+#include "xactions.h"
 #include "keybindings.h"
 #include "config.h"
 

@@ -136,15 +136,6 @@ print_window(Display *display, Window win)
   atoms = XListProperties(display, win, &nitems);
   
   printf("Window 0x%x on desktop %d/%d (\"%s\")\t[%d]\n", win, get_desktop(display, win)+1, 4, name, nitems);
-  
-  /*
-  for(i=0; i<nitems; i++){
-    printf("%s = \n", XGetAtomName(display, atoms[i]));
-  }
-  * */
-  
-  //get_str_property(win, "WM_CLASS", &value);
-  //get_str_property(win, "WM_CLIENT_MACHINE", &value);
 }
 
 void 
