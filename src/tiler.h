@@ -55,49 +55,6 @@ typedef enum {
 /**
  * 
  */
-static const char 
-move_names[32][MOVESLEN] = {
-  "top",
-  "topright",
-  "topleft",
-  "bottom",
-  "bottomright",
-  "bottomleft",
-  "right",
-  "left",
-  
-  "leftscreen",
-  "rightscreen",
-  
-  "grid",
-  "maximize",
-};
-
-/**
- * 
- */
-static const Geometry_t 
-move_geometries[MOVESLEN] = {
-  {-1, -1, -1, -1},     /* top */
-  {512,   0, 512, 358}, /* topright */
-  {  0,   0, 512, 358}, /* topleft */
-  {-1, -1, -1, -1},     /* bottom */
-  {512, 384, 512, 358}, /* bottomright */
-  {  0, 384, 512, 358}, /* bottomleft */
-  {-1, -1, -1, -1},     /* right */
-  {-1, -1, -1, -1},     /* left */
-  
-  {-1, -1, -1, -1},
-  {-1, -1, -1, -1},
-  
-  {-1, -1, -1, -1},
-  {-1, -1, -1, -1},
-};
-
-
-/**
- * 
- */
 extern Display *display;
 extern Window root;
 

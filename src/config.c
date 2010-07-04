@@ -87,7 +87,7 @@ parse_line(char *token, char *value)
    * token parsing
    */
   for(i=0; i<MOVESLEN; i++)
-    if( STREQ(token, move_names[i]) )
+    if( STREQ(token, bindings[i].name) )
       move = (Move_t) i;
   
   /**

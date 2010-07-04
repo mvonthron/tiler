@@ -52,7 +52,7 @@ void add_binding(Move_t move, KeySym keysym)
   extern Display *display;
   
   printf("binding \"%s\" to \"%s\"\n", 
-         move_names[(int)move], 
+         bindings[move].name, 
          XKeysymToString(keysym) );
   
   bindings[move].keysym = keysym;
