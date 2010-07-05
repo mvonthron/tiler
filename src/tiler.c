@@ -84,19 +84,8 @@ main(int argc, char **argv)
   */
   
   /** */
-  Window *winlist=NULL;
   Window root = XDefaultRootWindow(display);
-  int i;
-  int size = list_windows(display, root, &winlist, 1);
-  assert(winlist != NULL);
-
-  D(("%d items", size));
-  
   compute_geometries(display, root);
-  
-  for(i=0; i<size; i++){
-    print_window(display, winlist[i]);
-  }
   
   /**
    * main key event listening loop

@@ -142,12 +142,12 @@ print_window(Display *display, Window win)
 {
   char *name;
   Atom *atoms;
-  int i, nitems;
+  int nitems;
 
   XFetchName(display, win, &name);
   atoms = XListProperties(display, win, &nitems);
   
-  printf("Window 0x%x on desktop %d/%d (\"%s\")\t[%d]\n", win, get_desktop(display, win)+1, 4, name, nitems);
+  printf("Window 0x%x on desktop %d/%d (\"%s\")\t[%d]\n", (unsigned int)win, get_desktop(display, win)+1, 4, name, nitems);
 }
 
 void
@@ -156,7 +156,6 @@ send_xevent(Display *display, Window window, Atom message_type,
             unsigned long data2, unsigned long data3,
             unsigned long data4)
 {
-  D((""));
   XEvent e;
   
   e.xclient.type = ClientMessage;
