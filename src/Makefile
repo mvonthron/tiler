@@ -4,9 +4,9 @@
 #
 
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall
 LFLAGS = -lX11 -lm
-DEBUG = #-g
+DEBUG = -g #-pg
 BIN = tiler
 OBJS = keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
 

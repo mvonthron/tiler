@@ -275,10 +275,7 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
   geometry.y      += top;
   geometry.width  -= (left + right);
   geometry.height -= (top + bottom);
-  /*
-  printf("\tBecomes (%d, %d, %d, %d)\t [(%d, %d, %d, %d)]\n",geometry.x, geometry.y, geometry.width, geometry.height,
-                                                             left, right, top, bottom);
-  */
+
   move_resize_window(display, window, geometry);
 }
 

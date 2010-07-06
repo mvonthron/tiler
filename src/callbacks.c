@@ -25,13 +25,13 @@
 void
 dummy(void *data)
 {
-  printf("*** dummy ***\n");
+  D(("*** dummy ***\n"));
 }
 
 void
 grid(void *data)
 {
-  printf(COLOR_BOLD "*** Grid ***" COLOR_CLEAR " (not implemented)\n");
+  D((COLOR_BOLD "*** Grid ***" COLOR_CLEAR " (not implemented)\n"));
 }
 
 void
@@ -39,7 +39,7 @@ sidebyside(void *data)
 {
   Geometry_t *geometries = * (Geometry_t **) data;  
   
-  printf(COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)\n");
+  D((COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)\n"));
   D(("%d, %d", geometries[0].x, geometries[1].x));
 }
 
@@ -58,11 +58,11 @@ move(void *data)
 void
 maximize(void *data)
 {
-  printf(COLOR_BOLD "*** Maximize ***" COLOR_CLEAR " (not implemented)\n");
+  D((COLOR_BOLD "*** Maximize ***" COLOR_CLEAR " (not implemented)\n"));
 }
 
 void
 changescreen(void *data)
 {
-  printf(COLOR_BOLD "*** Change Screen ***" COLOR_CLEAR " (not implemented)\n");
+  D((COLOR_BOLD "*** Change Screen ***" COLOR_CLEAR " (not implemented)\n"));
 }
