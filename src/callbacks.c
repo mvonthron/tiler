@@ -32,7 +32,26 @@ dummy(void *data)
 void
 grid(void *data)
 {
-  D((COLOR_BOLD "*** Grid ***" COLOR_CLEAR " (not implemented)"));
+  Window *window_list=NULL;
+  extern Binding_t bindings[MOVESLEN];
+  int size=-1;
+  
+  size = list_windows(display, root, &window_list, true);
+  
+  /* squared grid only for now */
+  if(size < 4 || window_list == NULL)
+    return;
+  D(("nb windows on desktop : %d", size));
+  
+  Geometry_t topleft     = * (Geometry_t *) bindings[TOPLEFT].data;
+  Geometry_t topright    = * (Geometry_t *) bindings[TOPRIGHT].data;
+  Geometry_t bottomleft  = * (Geometry_t *) bindings[BOTTOMLEFT].data;
+  Geometry_t bottomright = * (Geometry_t *) bindings[BOTTOMRIGHT].data;
+  
+  fill_geometry(display, window_list[size-1], topleft);
+  fill_geometry(display, window_list[size-2], topright);
+  fill_geometry(display, window_list[size-3], bottomleft);
+  fill_geometry(display, window_list[size-4], bottomright);
 }
 
 void
