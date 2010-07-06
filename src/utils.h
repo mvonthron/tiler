@@ -35,7 +35,7 @@
 
 typedef int bool;
 #define false (0)
-#define true (!false)
+#define true (1)
 
 void error(char *, ...);
 void fatal(char *, ...);

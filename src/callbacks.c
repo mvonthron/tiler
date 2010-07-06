@@ -37,9 +37,18 @@ grid(void *data)
 void
 sidebyside(void *data)
 {
-  Geometry_t *geometries = * (Geometry_t **) data;  
-  
   D((COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)"));
+  Window *window_list=NULL;
+  int size=-1;
+  
+  Geometry_t *geometries = * (Geometry_t **) data;  
+  size = list_windows(display, root, &window_list, false);
+  
+  if(size < 2 || window_list == NULL)
+    return;
+    
+  D(("nb windows on desktop : %d", size));
+  
   D(("%d, %d", geometries[0].x, geometries[1].x));
 }
 

@@ -84,7 +84,7 @@ main(int argc, char **argv)
   */
   
   /** */
-  Window root = XDefaultRootWindow(display);
+  root = XDefaultRootWindow(display);
   compute_geometries(display, root);
   
   /**

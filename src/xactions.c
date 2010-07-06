@@ -82,7 +82,7 @@ get_active_window()
  * @return actual list size
  */
 int
-list_windows(Display* display, Window root, Window **window_list, int only_curr_desktop)
+list_windows(Display* display, Window root, Window **window_list, bool only_curr_desktop)
 {
   Atom actual_type, atom;
   int actual_format, curr_desktop=42, status=-1, i=0, actual_size=0;
@@ -110,6 +110,7 @@ list_windows(Display* display, Window root, Window **window_list, int only_curr_
       w = *((Window *)data+i);
       
       if(!only_curr_desktop || get_desktop(display, w) == curr_desktop){
+        print_window(display, w);
         *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
       }
     }
@@ -280,6 +281,10 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
 }
 
 
+/**
+ * NOT WORKING ON COMPIZ ?!
+ * @todo replace with an xevent ?
+ */
 int
 get_desktop(Display *display, Window window)
 {
