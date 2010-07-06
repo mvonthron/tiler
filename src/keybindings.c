@@ -51,7 +51,7 @@ void add_binding(Move_t move, KeySym keysym)
 {
   extern Display *display;
   
-  D(("binding \"%s\" to \"%s\"\n", 
+  D(("binding \"%s\" to \"%s\"", 
          bindings[move].name, 
          XKeysymToString(keysym) ));
   
@@ -75,7 +75,7 @@ void dispatch(XEvent *event)
     XKeyEvent e = event->xkey;    
     KeySym keysym = XKeycodeToKeysym(e.display, e.keycode, 0);
     
-    D(("* received \"%s\" event\n", XKeysymToString(keysym)));
+    D((COLOR_GREEN "received \"%s\" event" COLOR_CLEAR, XKeysymToString(keysym)));
     
     for(i=0; i<MOVESLEN; i++){
       if(keysym == bindings[i].keysym){        

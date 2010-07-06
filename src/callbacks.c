@@ -25,13 +25,13 @@
 void
 dummy(void *data)
 {
-  D(("*** dummy ***\n"));
+  D(("*** dummy ***"));
 }
 
 void
 grid(void *data)
 {
-  D((COLOR_BOLD "*** Grid ***" COLOR_CLEAR " (not implemented)\n"));
+  D((COLOR_BOLD "*** Grid ***" COLOR_CLEAR " (not implemented)"));
 }
 
 void
@@ -39,7 +39,7 @@ sidebyside(void *data)
 {
   Geometry_t *geometries = * (Geometry_t **) data;  
   
-  D((COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)\n"));
+  D((COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)"));
   D(("%d, %d", geometries[0].x, geometries[1].x));
 }
 
@@ -58,11 +58,11 @@ move(void *data)
 void
 maximize(void *data)
 {
-  D((COLOR_BOLD "*** Maximize ***" COLOR_CLEAR " (not implemented)\n"));
+  D((COLOR_BOLD "*** Maximize ***" COLOR_CLEAR " (not implemented)"));
 }
 
 void
 changescreen(void *data)
 {
-  D((COLOR_BOLD "*** Change Screen ***" COLOR_CLEAR " (not implemented)\n"));
+  D((COLOR_BOLD "*** Change Screen ***" COLOR_CLEAR " (not implemented)"));
 }
