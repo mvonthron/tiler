@@ -205,24 +205,4 @@ compute_geometries(Display *display, Window root)
   left->width  = (int)(w/2);
   left->height = h;
   bindings[LEFT].data = left;
-  
-  /**
-   * sidebyside
-   *
-  Geometry_t **sbs  = (Geometry_t **)malloc(2*sizeof(Geometry_t *));
-  sbs[0] = (Geometry_t *)malloc(sizeof(Geometry_t));
-  sbs[1] = (Geometry_t *)malloc(sizeof(Geometry_t));
-  
-  sbs[0]->x      = 42;
-  sbs[0]->y      = 43;
-  sbs[0]->width  = 44;
-  sbs[0]->height = 45;
-  
-  sbs[1]->x      = 52;
-  sbs[1]->y      = 53;
-  sbs[1]->width  = 54;
-  sbs[1]->height = 55;
-  
-  bindings[SIDEBYSIDE].data = sbs;  
-  */
 }

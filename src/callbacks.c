@@ -38,10 +38,7 @@ grid(void *data)
 void
 sidebyside(void *data)
 {
-  D((COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)"));
-  
   Window *window_list=NULL;
-  
   extern Binding_t bindings[MOVESLEN];
   int size=-1;
   
