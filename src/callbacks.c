@@ -19,6 +19,7 @@
 
 #include "tiler.h"
 #include "utils.h"
+#include "keybindings.h"
 #include "xactions.h"
 #include "callbacks.h"
 
@@ -38,18 +39,23 @@ void
 sidebyside(void *data)
 {
   D((COLOR_BOLD "*** Side by side ***" COLOR_CLEAR " (not implemented)"));
+  
   Window *window_list=NULL;
+  
+  extern Binding_t bindings[MOVESLEN];
   int size=-1;
   
-  Geometry_t *geometries = * (Geometry_t **) data;  
-  size = list_windows(display, root, &window_list, false);
+  size = list_windows(display, root, &window_list, true);
   
   if(size < 2 || window_list == NULL)
     return;
-    
   D(("nb windows on desktop : %d", size));
   
-  D(("%d, %d", geometries[0].x, geometries[1].x));
+  Geometry_t left  = * (Geometry_t *) bindings[LEFT].data;
+  Geometry_t right = * (Geometry_t *) bindings[RIGHT].data;
+  
+  fill_geometry(display, window_list[size-1], left);
+  fill_geometry(display, window_list[size-2], right);
 }
 
 void

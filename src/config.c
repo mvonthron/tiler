@@ -208,7 +208,7 @@ compute_geometries(Display *display, Window root)
   
   /**
    * sidebyside
-   */
+   *
   Geometry_t **sbs  = (Geometry_t **)malloc(2*sizeof(Geometry_t *));
   sbs[0] = (Geometry_t *)malloc(sizeof(Geometry_t));
   sbs[1] = (Geometry_t *)malloc(sizeof(Geometry_t));
@@ -224,4 +224,5 @@ compute_geometries(Display *display, Window root)
   sbs[1]->height = 55;
   
   bindings[SIDEBYSIDE].data = sbs;  
+  */
 }
