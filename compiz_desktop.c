@@ -1,10 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
-
-#include <stdio.h>
-#include <stdlib.h>
 
 #define COLOR_GREEN "\033[92m"
 #define COLOR_RED "\033[91m"
@@ -122,6 +123,40 @@ wm_is_compiz()
   
   return false;
 }
+/**
+ * @return actual list size
+ */
+int
+list_windows(Display* display, Window root, Window **window_list, bool only_curr_desktop)
+{
+  Atom actual_type, atom;
+  int actual_format, curr_desktop=42, status=-1, i=0, actual_size=0;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+  Window w;
+  
+  assert(*window_list == NULL);
+  
+  atom = XInternAtom(display, "_NET_CLIENT_LIST_STACKING", 0);
+  status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
+                                  XA_WINDOW, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+  
+  if(status >= Success 
+     && nitems >= 1
+     && actual_type == XA_WINDOW
+     && actual_format == 32){
+
+    *window_list = (Window *) malloc(nitems * sizeof(Window));
+
+    for(i=0; i<nitems; i++){
+      w = *((Window *)data+i);
+      *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
+    }
+  }
+  
+  return actual_size;
+}
 
 int 
 compiz_get_active_desktop()
@@ -143,6 +178,46 @@ compiz_get_active_desktop()
   D(("Current desktop could be %d (%d+%d)", vp_x/w+vp_y/h, vp_x/w, vp_y/h));
 }
 
+void
+print_window(Display *display, Window win)
+{
+  char *name;
+  Atom *atoms;
+  int nitems;
+
+  XFetchName(display, win, &name);
+  atoms = XListProperties(display, win, &nitems);
+  
+  printf("Window 0x%x (\"%s\")\t[%d]\n", (unsigned int)win, name, nitems);
+}
+
+Window 
+get_active_window()
+{
+  //extern Display *display;
+  
+  Atom atom = XInternAtom(display, "_NET_ACTIVE_WINDOW", 0);
+  Window root = XDefaultRootWindow(display);
+
+  Atom actual_type;
+  int actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned char *data=NULL;
+
+  int status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
+                                  AnyPropertyType, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+  
+  if(status >= Success && nitems > 0)
+    return *((Window*)data);
+  else{
+    //Xfree(data); //definition problem
+    return 0;
+  }
+}
+
+
 bool same_viewport(Window win1, Window win2)
 {
   int win1_x, win1_y;
@@ -150,6 +225,8 @@ bool same_viewport(Window win1, Window win2)
   
   get_2int_property(display, win1, "_NET_DESKTOP_VIEWPORT", &win1_x, &win1_y);
   get_2int_property(display, win2, "_NET_DESKTOP_VIEWPORT", &win2_x, &win2_y);
+  
+  D(("[(%d, %d) (%d, %d)]", win1_x, win1_y, win2_x, win2_y));
   
   return (win1_x == win2_x && win1_y == win2_y);
 }
@@ -165,6 +242,17 @@ main(int argc, char **argv)
   wm_is_compiz();
   
   compiz_get_active_desktop();
+  
+  Window *window_list=NULL;
+  int size = list_windows(display, root, &window_list, 1); 
+  int i;
+  
+  print_window(display, get_active_window());
+  
+  for(i=0; i<size; i++){
+    print_window(display, window_list[i]);
+    D(("%d", same_viewport(get_active_window(), window_list[i])));
+  }
   
   return 0;
 }
