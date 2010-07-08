@@ -171,11 +171,17 @@ compiz_get_active_desktop()
   
   int vp_x, vp_y;
   get_2int_property(display, root, "_NET_DESKTOP_VIEWPORT", &vp_x, &vp_y);
-  
   D(("_NET_DESKTOP_VIEWPORT (%d, %d)", vp_x, vp_y));
+  
+  int gx, gy;
+  get_2int_property(display, root, "_NET_DESKTOP_GEOMETRY", &gx, &gy);
+  D(("_NET_DESKTOP_GEOMETRY (%d, %d) => (%d, %d)", gx, gy, gx/w, gy/h));
+  
 
-  /** need to compute max vp_x */
-  D(("Current desktop could be %d (%d+%d)", vp_x/w+vp_y/h, vp_x/w, vp_y/h));
+  int desktop = (vp_x/w)+(gx/w)*(vp_y/h);
+  D(("Current desktop is %d (%d+%d*%d)", desktop, (vp_x/w), (gx/w), (vp_y/h)));
+
+  return desktop;
 }
 
 void
