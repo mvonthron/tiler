@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -158,13 +159,14 @@ list_windows(Display* display, Window root, Window **window_list, bool only_curr
   return actual_size;
 }
 
+
 int 
 compiz_get_active_desktop()
 {
   int x, y, w, h;
   get_workarea(display, root, &x, &y, &w, &h);
 
-  D(("workarea : (%d, %d, %d, %d)", x, y, w, h));
+  D(("WORKAREA : (%d, %d, %d, %d)", x, y, w, h));
   
   D(("_NET_NUMBER_OF_DESKTOPS %d", get_int_property(display, root, "_NET_NUMBER_OF_DESKTOPS")));
   D(("_NET_CURRENT_DESKTOP %d", get_int_property(display, root, "_NET_CURRENT_DESKTOP")));
@@ -184,6 +186,44 @@ compiz_get_active_desktop()
   return desktop;
 }
 
+int 
+compiz_get_desktop_for_window(Window window)
+{
+  int desktop;
+  
+  XWindowAttributes attributes;
+  XGetWindowAttributes(display, window, &attributes);
+
+  print_window(display, window);
+  D(("  (%d, %d)", attributes.x, attributes.y));
+
+  return desktop;
+}
+
+bool 
+compiz_window_in_active_desktop(Window window)
+{
+  int desktop;
+  
+  XWindowAttributes attributes;
+  XGetWindowAttributes(display, window, &attributes);
+
+  //D(("(%d, %d)", attributes.x, attributes.y));
+  
+  /* negative coordinates => desktop before */
+  if(attributes.x < 0 || attributes.y < 0)
+    return false;
+    
+  int x=-1, y=-1, w=-1, h=-1;
+  get_workarea(display, root, &x, &y, &w, &h);
+
+  /* too far away */
+  if(attributes.x > w || attributes.y > h)
+    return false;
+  
+  return true;
+}
+
 void
 print_window(Display *display, Window win)
 {
@@ -194,7 +234,12 @@ print_window(Display *display, Window win)
   XFetchName(display, win, &name);
   atoms = XListProperties(display, win, &nitems);
   
-  printf("Window 0x%x (\"%s\")\t[%d]\n", (unsigned int)win, name, nitems);
+  bool same_desktop = compiz_window_in_active_desktop(win);
+  
+  if(same_desktop)
+    printf(COLOR_BOLD COLOR_GREEN "[current]  "COLOR_CLEAR "\"%s\" (Window 0x%x)\t[%d]\n", name, (unsigned int)win, nitems);
+  else
+    printf(COLOR_BOLD COLOR_RED   "[other]    "COLOR_CLEAR "\"%s\" (Window 0x%x)\t[%d]\n", name, (unsigned int)win, nitems);
 }
 
 Window 
@@ -224,7 +269,8 @@ get_active_window()
 }
 
 
-bool same_viewport(Window win1, Window win2)
+bool 
+same_viewport(Window win1, Window win2)
 {
   int win1_x, win1_y;
   int win2_x, win2_y;
@@ -255,10 +301,16 @@ main(int argc, char **argv)
   
   print_window(display, get_active_window());
   
+  compiz_get_desktop_for_window(get_active_window());
+  
+  
   for(i=0; i<size; i++){
     print_window(display, window_list[i]);
-    D(("%d", same_viewport(get_active_window(), window_list[i])));
+    //compiz_get_desktop_for_window(window_list[i]);
+    //D(("%d", same_viewport(get_active_window(), window_list[i])));
+    //compiz_window_in_active_desktop(window_list[i]);
   }
   
+ 
   return 0;
 }
