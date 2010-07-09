@@ -140,14 +140,15 @@ wm_is_compiz()
   unsigned char *data=NULL;
   Window w;
   
-  atom = XInternAtom(display, "_NET_CLIENT_LIST_STACKING", 0);
+  atom = XInternAtom(display, "_COMPIZ_SUPPORTING_DM_CHECK", 0);
   status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
                                   AnyPropertyType, &actual_type, &actual_format,
                                   &nitems, &bytes_after, &data);
   
-  D(("%d %d", status, nitems));
+  if(status < Success)
+    D(("Error checking Compiz has the window manager"));
   
-  return false;
+  return (nitems >= 1);
 }
 /**
  * @return actual list size
@@ -343,7 +344,11 @@ main(int argc, char **argv)
     return 1;
   root = XDefaultRootWindow(display);
   
-  wm_is_compiz();
+  if( wm_is_compiz() )
+    printf(COLOR_BOLD COLOR_RED "Running on Compiz" COLOR_CLEAR);
+  else
+    printf(COLOR_BOLD COLOR_GREEN "Running on a compliant WM (maybe)" COLOR_CLEAR);
+
   /*
   compiz_get_active_desktop();
   print_window(display, get_active_window());
