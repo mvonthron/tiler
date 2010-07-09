@@ -89,7 +89,7 @@ void
 get_2int_property(Display *display, Window window, char *property, int *data0, int *data1)
 {
   Atom at, actual_type;
-  int actual_format, status, value;
+  int actual_format, status;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   
@@ -108,7 +108,23 @@ get_2int_property(Display *display, Window window, char *property, int *data0, i
   }
 }
 
+void
+print_window(Display *display, Window win)
+{
+  char *name;
+  Atom *atoms;
+  int nitems;
 
+  XFetchName(display, win, &name);
+  atoms = XListProperties(display, win, &nitems);
+  
+  bool same_desktop = compiz_window_in_active_desktop(win);
+  
+  if(same_desktop)
+    printf(COLOR_BOLD COLOR_GREEN "[current]  "COLOR_CLEAR "\"%s\" (Window 0x%x)\t[%d]\n", name, (unsigned int)win, nitems);
+  else
+    printf(COLOR_BOLD COLOR_RED   "[other]    "COLOR_CLEAR "\"%s\" (Window 0x%x)\t[%d]\n", name, (unsigned int)win, nitems);
+}
 
 bool 
 wm_is_compiz()
@@ -131,7 +147,7 @@ int
 list_windows(Display* display, Window root, Window **window_list, bool only_curr_desktop)
 {
   Atom actual_type, atom;
-  int actual_format, curr_desktop=42, status=-1, i=0, actual_size=0;
+  int actual_format, status=-1, i=0, actual_size=0;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   Window w;
@@ -186,25 +202,54 @@ compiz_get_active_desktop()
   return desktop;
 }
 
+/**
+ * @note not working
+ */
 int 
 compiz_get_desktop_for_window(Window window)
 {
-  int desktop;
+  int desktop=-1;
   
   XWindowAttributes attributes;
   XGetWindowAttributes(display, window, &attributes);
 
   print_window(display, window);
-  D(("  (%d, %d)", attributes.x, attributes.y));
+  //D(("  (%d, %d)", attributes.x, attributes.y));
 
   return desktop;
 }
 
+bool is_sticky(Window window)
+{
+  Atom actual_type;
+  int i, actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned long *data;
+  
+  unsigned long atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
+  
+  Atom atom = XInternAtom(display, "_NET_WM_STATE", 0);
+  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                  XA_ATOM, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+  if(status >= Success 
+     && nitems >= 1
+     && actual_type == XA_ATOM
+     && actual_format == 32){
+       
+    for(i=0; i<nitems; i++)
+      if(data[i] == atom_sticky)
+        return true;
+  }
+  
+  return false;
+}
+
+
 bool 
 compiz_window_in_active_desktop(Window window)
 {
-  int desktop;
-  
   XWindowAttributes attributes;
   XGetWindowAttributes(display, window, &attributes);
 
@@ -221,26 +266,17 @@ compiz_window_in_active_desktop(Window window)
   if(attributes.x > w || attributes.y > h)
     return false;
   
+  /* not in workarea : probably a dock or stuff like that */
+  if(attributes.x < x || attributes.y < y)
+    return false;
+  
+  if(is_sticky(window))
+    return false;
+  
   return true;
 }
 
-void
-print_window(Display *display, Window win)
-{
-  char *name;
-  Atom *atoms;
-  int nitems;
 
-  XFetchName(display, win, &name);
-  atoms = XListProperties(display, win, &nitems);
-  
-  bool same_desktop = compiz_window_in_active_desktop(win);
-  
-  if(same_desktop)
-    printf(COLOR_BOLD COLOR_GREEN "[current]  "COLOR_CLEAR "\"%s\" (Window 0x%x)\t[%d]\n", name, (unsigned int)win, nitems);
-  else
-    printf(COLOR_BOLD COLOR_RED   "[other]    "COLOR_CLEAR "\"%s\" (Window 0x%x)\t[%d]\n", name, (unsigned int)win, nitems);
-}
 
 Window 
 get_active_window()
@@ -292,16 +328,15 @@ main(int argc, char **argv)
   root = XDefaultRootWindow(display);
   
   wm_is_compiz();
-  
+  /*
   compiz_get_active_desktop();
+  print_window(display, get_active_window());
+  compiz_get_desktop_for_window(get_active_window());
+  */
   
   Window *window_list=NULL;
   int size = list_windows(display, root, &window_list, 1); 
   int i;
-  
-  print_window(display, get_active_window());
-  
-  compiz_get_desktop_for_window(get_active_window());
   
   
   for(i=0; i<size; i++){
