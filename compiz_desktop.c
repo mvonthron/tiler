@@ -129,14 +129,23 @@ print_window(Display *display, Window win)
 bool 
 wm_is_compiz()
 {
-  XTextProperty wmname;
-  char *wmname2;
-  XGetWMName(display, root, &wmname);
+  /* all standard get_wm_name-like failed so far... */
   
-  D(("WM Name: %s (%d)", wmname.value, wmname.nitems));
+  /* compiz has some atoms defined */
+  /* another way could be to find the "switcher window" instancied by 
+   * compiz, which has a "compiz" WM_CLASS */
+  Atom actual_type, atom;
+  int actual_format, status=-1, i=0, actual_size=0;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+  Window w;
   
-  XFetchName(display, root, &wmname2);
-  D(("WM Name2: %s", wmname2));
+  atom = XInternAtom(display, "_NET_CLIENT_LIST_STACKING", 0);
+  status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
+                                  AnyPropertyType, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+  
+  D(("%d %d", status, nitems));
   
   return false;
 }
@@ -219,6 +228,10 @@ compiz_get_desktop_for_window(Window window)
   return desktop;
 }
 
+/**
+ * immovable window
+ * used for some compiz system windows
+ */
 bool is_sticky(Window window)
 {
   Atom actual_type;
@@ -305,6 +318,9 @@ get_active_window()
 }
 
 
+/**
+ * @note not working
+ */
 bool 
 same_viewport(Window win1, Window win2)
 {
