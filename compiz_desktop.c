@@ -150,6 +150,7 @@ wm_is_compiz()
   
   return (nitems >= 1);
 }
+
 /**
  * @return actual list size
  */
