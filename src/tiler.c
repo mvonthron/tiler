@@ -19,6 +19,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <assert.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
 
 #include <X11/Xlib.h>
 
@@ -31,15 +34,23 @@
 Display *display=NULL;
 Window root=BadWindow;
 
+
+void
+cleanup()
+{
+  //XCloseDisplay(display);
+  
+  /* remove pid file */
+  unlink("tiler.pid");
+}
+
 void
 signal_handler(int sig)
 {
   if(sig == SIGTERM || sig == SIGINT){
     D(("Exiting"));
-    /* free allocated */
-    
-    //XCloseDisplay(display);
-    
+
+    cleanup();
     exit(0);
   }
 }
@@ -61,13 +72,6 @@ main(int argc, char **argv)
   }
   
   /* 
-   * configuration parsing 
-   * keybinding setup 
-   */
-  parse_conf_file("tiler.conf");
-
-  
-  /* 
    * daemonize
    *
   int pid = fork();
@@ -83,6 +87,25 @@ main(int argc, char **argv)
     return EXIT_FAILURE;  
   */
   
+  int pidfile = open("tiler.pid", O_CREAT | O_EXCL | O_WRONLY);
+  if(pidfile == -1){
+    if(errno == EEXIST)
+      D(("pid file already exists"));
+    return 1;
+  }
+  
+  char pidline[32];
+  sprintf(pidline, "%d", getpid());
+  write(pidfile, pidline, strlen(pidline));
+  close(pidfile);
+  
+  /* 
+   * configuration parsing 
+   * keybinding setup 
+   */
+  parse_conf_file("tiler.conf");
+
+  
   /** */
   root = XDefaultRootWindow(display);
   compute_geometries(display, root);
@@ -95,7 +118,7 @@ main(int argc, char **argv)
     dispatch(&event);
   }
   
-  
+  cleanup();
   XCloseDisplay(display);
   
   return EXIT_SUCCESS;
