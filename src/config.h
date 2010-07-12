@@ -23,6 +23,8 @@ extern struct settings_t {
   bool debug;
   bool verbose;
   bool foreground;
+  bool is_compiz;
+  bool force_run;
   char filename[256];
 } settings;
 
