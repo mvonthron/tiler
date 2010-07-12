@@ -60,16 +60,11 @@ main(int argc, char **argv)
 {
   XEvent event;
   
+  parse_opt(argc, argv);
+  
   /* signal capture */
   signal(SIGTERM, signal_handler);
   signal(SIGINT, signal_handler);
-  
-  display = XOpenDisplay(NULL);
-  if (display == NULL) {
-    fprintf(stderr, "%s: cannot connect to X server\n",
-            argv[0]);
-    return EXIT_FAILURE;
-  }
   
   /* 
    * daemonize
@@ -87,6 +82,10 @@ main(int argc, char **argv)
     return EXIT_FAILURE;  
   */
   
+  /*
+   * pid file creation
+   * ensuring single instance of tiler
+   */
   int pidfile = open("tiler.pid", O_CREAT | O_EXCL | O_WRONLY);
   if(pidfile == -1){
     if(errno == EEXIST)
@@ -99,15 +98,23 @@ main(int argc, char **argv)
   write(pidfile, pidline, strlen(pidline));
   close(pidfile);
   
+  
+    
+  display = XOpenDisplay(NULL);
+  if (display == NULL) {
+    fprintf(stderr, "%s: cannot connect to X server\n",
+            argv[0]);
+    return EXIT_FAILURE;
+  }
+  
+  root = XDefaultRootWindow(display);
+  
   /* 
    * configuration parsing 
    * keybinding setup 
    */
   parse_conf_file("tiler.conf");
-
   
-  /** */
-  root = XDefaultRootWindow(display);
   compute_geometries(display, root);
   
   /**

@@ -30,14 +30,19 @@
 #include "keybindings.h"
 #include "config.h"
 
-#define STREQ(str1, str2) (strcmp((str1), (str2)) == 0)
 
-static const char *optstring = "hv";
+static const char *optstring = "hvfFc:V";
 static const struct option longopts[] = {
-  {"help",    0, NULL, 1},
-  {"verbose", 0, NULL, 1},
-  {NULL,      0, NULL, 0},
+  {"foreground",  0, NULL, 'f'},
+  {"force",       0, NULL, 'F'},
+  {"compiz",      0, NULL, 'C'},
+  {"verbose",     0, NULL, 'v'},
+  {"version",     0, NULL, 'V'},
+  {"help",        0, NULL, 'h'},
+  {NULL,          0, NULL, 0},
 };
+
+struct settings_t settings = {0, 0, 0, ""};
 
 /**
  * 
@@ -45,6 +50,28 @@ static const struct option longopts[] = {
 void 
 usage()
 {
+  printf("usage: tiler [options]\n"
+         "options: \n"
+         "  -f  --foreground            Run in foreground rather than as a daemon \n"
+         "  -F  --force                 Force program to start even if a pid file is detected \n"
+         "  -c  --config-file <file>    Use <file> instead of ~/.config/tiler.conf as a configuration file \n"
+         "      --compiz                Force Compiz behaviour even if not detected\n"
+         "  -v  --verbose               Print various messages \n"
+         "  -V  --version               Print version number and exit \n"
+         "  -h  --help                  Print this message and exit \n"
+        );
+
+  exit(0);
+}
+
+/**
+ * 
+ */
+void
+version()
+{
+  printf("tiler v0.1a \t(built "__DATE__")\n");
+  
   exit(0);
 }
 
@@ -54,6 +81,37 @@ usage()
 void
 parse_opt(int argc, char **argv)
 {
+  int opt, index;
+  
+  while((opt = getopt_long(argc, argv, optstring, longopts, &index)) != -1){
+    switch(opt){
+    case 'h':
+      usage();
+      break;
+    case 'v':
+      D(("v"));
+      break;
+    case 'c':
+      D(("Using file %s", optarg));
+      strcpy(settings.filename, optarg);
+      break;
+    case 'C':
+      D(("C"));
+      break;
+    case 'V':
+      version();
+      break;
+    case 'F':
+      D(("F"));
+      break;
+    case 'f':
+      D(("f"));
+      break;
+    case '?':
+    default:
+      break;
+    }
+  }
 }
 
 /**

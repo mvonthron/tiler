@@ -17,8 +17,17 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "utils.h"
+
+extern struct settings_t {
+  bool debug;
+  bool verbose;
+  bool foreground;
+  char filename[256];
+} settings;
 
 void parse_opt(int, char **);
+void version();
 void usage();
 void parse_conf_file(char *);
 
