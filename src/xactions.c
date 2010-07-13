@@ -235,7 +235,8 @@ list_windows(Display* display, Window root, Window **window_list, bool only_curr
     for(i=0; i<nitems; i++){
       w = *((Window *)data+i);
       
-      if(!only_curr_desktop || get_desktop(display, w) == curr_desktop){
+      if( (!only_curr_desktop || window_in_active_desktop(display, w))
+          && !is_sticky(w) /* pass as an option ? */){
         print_window(display, w);
         *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
       }
