@@ -28,8 +28,10 @@
 #include "config.h"
 
 
-
-int
+/**
+ * property getters
+ */
+static int
 get_int_property(Display *display, Window window, char *property)
 {
   Atom at, actual_type;
@@ -52,6 +54,52 @@ get_int_property(Display *display, Window window, char *property)
   
   return value;
 }
+
+static void
+get_2int_property(Display *display, Window window, char *property, int *data0, int *data1)
+{
+  Atom at, actual_type;
+  int actual_format, status;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+  
+  
+  at = XInternAtom(display, property, 0);
+  status = XGetWindowProperty(display, window, at, 0, (~0L), 0,
+                              XA_CARDINAL, &actual_type, &actual_format,
+                              &nitems, &bytes_after, &data);
+  if(status >= Success 
+     && nitems >= 2
+     && actual_type == XA_CARDINAL
+     && actual_format == 32){
+
+    *data0 = ((int *)data)[0];
+    *data1 = ((int *)data)[1];
+  }
+}
+
+
+/**
+ * Compiz specific stuff
+ */
+static int 
+__compiz_get_active_desktop()
+{
+  int x, y, w, h;
+  int vp_x, vp_y;
+  int gx, gy, desktop;
+  
+  get_workarea(display, root, &x, &y, &w, &h);
+  get_2int_property(display, root, "_NET_DESKTOP_VIEWPORT", &vp_x, &vp_y);
+  get_2int_property(display, root, "_NET_DESKTOP_GEOMETRY", &gx, &gy);
+
+  desktop = (vp_x/w)+(gx/w)*(vp_y/h);
+  
+  D(("Current desktop is %d (%d+%d*%d)", desktop, (vp_x/w), (gx/w), (vp_y/h)));
+
+  return desktop;
+}
+
 
 Window 
 get_active_window()
@@ -282,21 +330,15 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
 }
 
 
-/**
- * NOT WORKING ON COMPIZ ?!
- * @todo replace with an xevent ?
- */
 int
 get_desktop(Display *display, Window window)
 {
-  return get_int_property(display, window, "_NET_WM_DESKTOP");
+  if(settings.is_compiz)
+    return __compiz_get_active_desktop();
+  else
+    return get_int_property(display, window, "_NET_WM_DESKTOP");
 }
 
-
-
-/**
- * Compiz specific stuff
- */
 void
 check_compiz_wm()
 {
@@ -324,3 +366,4 @@ check_compiz_wm()
 
   settings.is_compiz = (status == Success && nitems >= 1);
 }
+
