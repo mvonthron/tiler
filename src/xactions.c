@@ -100,6 +100,30 @@ __compiz_get_active_desktop()
   return desktop;
 }
 
+static bool 
+__compiz_window_in_active_desktop(Window window)
+{
+  XWindowAttributes attributes;
+  XGetWindowAttributes(display, window, &attributes);
+
+  /* negative coordinates => desktop before */
+  if(attributes.x < 0 || attributes.y < 0)
+    return false;
+    
+  int x=-1, y=-1, w=-1, h=-1;
+  get_workarea(display, root, &x, &y, &w, &h);
+
+  /* too far away */
+  if(attributes.x > w || attributes.y > h)
+    return false;
+  
+  /* not in workarea : probably a dock or stuff like that */
+  if(attributes.x < x || attributes.y < y)
+    return false;
+
+  return true;
+}
+
 
 Window 
 get_active_window()
