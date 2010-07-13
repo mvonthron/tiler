@@ -101,9 +101,8 @@ main(int argc, char **argv)
   sprintf(pidline, "%d", getpid());
   write(pidfile, pidline, strlen(pidline));
   close(pidfile);
-  
-  
-    
+
+
   display = XOpenDisplay(NULL);
   if (display == NULL) {
     fprintf(stderr, "%s: cannot connect to X server\n",
@@ -118,6 +117,7 @@ main(int argc, char **argv)
    * keybinding setup 
    */
   parse_conf_file("tiler.conf");
+  check_compiz_wm();
   
   compute_geometries(display, root);
   

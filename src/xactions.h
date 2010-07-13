@@ -41,4 +41,7 @@ void move_window(Display *, Window, Geometry_t);
 void move_resize_window(Display *, Window, Geometry_t);
 void fill_geometry(Display *, Window, Geometry_t);
 
+/* compiz */
+void check_compiz_wm();
+
 #endif /* XACTIONS_H */

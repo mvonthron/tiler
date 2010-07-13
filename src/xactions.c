@@ -25,6 +25,7 @@
 #include "tiler.h"
 #include "utils.h"
 #include "xactions.h"
+#include "config.h"
 
 
 
@@ -308,14 +309,13 @@ check_compiz_wm()
   
   /* 
    * compiz has some atoms defined
-  /* another way could be to find the "switcher window" instancied by 
+   * another way could be to find the "switcher window" instancied by 
    * compiz, which has a "compiz" WM_CLASS 
    */
   Atom actual_type, atom;
-  int actual_format, status=-1, i=0, actual_size=0;
+  int actual_format, status=-1;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
-  Window w;
   
   atom = XInternAtom(display, "_COMPIZ_SUPPORTING_DM_CHECK", 0);
   status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
