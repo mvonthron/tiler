@@ -124,6 +124,42 @@ __compiz_window_in_active_desktop(Window window)
   return true;
 }
 
+/*
+ * immovable window
+ * used for some compiz system windows
+ */
+static bool 
+is_sticky(Window window)
+{
+  Atom actual_type;
+  int i, actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned long *data;
+  
+  unsigned long atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
+  
+  Atom atom = XInternAtom(display, "_NET_WM_STATE", 0);
+  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                  XA_ATOM, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+  if(status >= Success 
+     && nitems >= 1
+     && actual_type == XA_ATOM
+     && actual_format == 32){
+       
+    for(i=0; i<nitems; i++)
+      if(data[i] == atom_sticky)
+        return true;
+  }
+  
+  return false;
+}
+
+
+/**
+ * non-static stuff
+ */
 
 Window 
 get_active_window()
