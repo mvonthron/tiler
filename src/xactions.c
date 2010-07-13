@@ -187,6 +187,23 @@ get_active_window()
   }
 }
 
+int
+get_active_desktop()
+{
+  if(settings.is_compiz)
+    return __compiz_get_active_desktop();
+}
+
+bool 
+window_in_active_desktop(Display *display, Window window)
+{
+  if(settings.is_compiz)
+    return __compiz_window_in_active_desktop(window);
+  else{
+    return (get_desktop(display, window) == get_desktop(display, get_active_window(display)));
+  }
+}
+
 /**
  * @return actual list size
  */
@@ -394,7 +411,7 @@ int
 get_desktop(Display *display, Window window)
 {
   if(settings.is_compiz)
-    return __compiz_get_active_desktop();
+    return -1;          /* not supported (@todo) */
   else
     return get_int_property(display, window, "_NET_WM_DESKTOP");
 }

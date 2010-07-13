@@ -24,6 +24,8 @@
 
 Window get_active_window();
 int get_desktop(Display *, Window);
+int get_active_desktop();
+bool window_in_active_desktop(Display *, Window);
 int list_windows(Display*, Window, Window **, int);
 bool window_is_maximized(Display *, Window);
 void unmaximize_window(Display *, Window);
