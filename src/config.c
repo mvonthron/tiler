@@ -42,7 +42,13 @@ static const struct option longopts[] = {
   {NULL,          0, NULL, 0},
 };
 
-struct settings_t settings = {false, false, false, false, false, ""};
+struct settings_t settings = {
+  false,  /* verbose */
+  false,  /* foreground */
+  false,  /* is_compiz */
+  false,  /* force_run */
+  ""      /* conf filename */
+};
 
 /**
  * 
@@ -92,7 +98,6 @@ parse_opt(int argc, char **argv)
       settings.verbose = true;
       break;
     case 'c':
-      D(("Using file %s", optarg));
       strcpy(settings.filename, optarg);
       break;
     case 'C':

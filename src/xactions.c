@@ -290,3 +290,37 @@ get_desktop(Display *display, Window window)
 {
   return get_int_property(display, window, "_NET_WM_DESKTOP");
 }
+
+
+
+/**
+ * Compiz specific stuff
+ */
+void
+check_compiz_wm()
+{
+  /* already set by "--compiz" option */
+  if(settings.is_compiz)
+    return;
+    
+    
+  /* all standard get_wm_name-like failed so far... */
+  
+  /* 
+   * compiz has some atoms defined
+  /* another way could be to find the "switcher window" instancied by 
+   * compiz, which has a "compiz" WM_CLASS 
+   */
+  Atom actual_type, atom;
+  int actual_format, status=-1, i=0, actual_size=0;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+  Window w;
+  
+  atom = XInternAtom(display, "_COMPIZ_SUPPORTING_DM_CHECK", 0);
+  status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
+                                  AnyPropertyType, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+
+  settings.is_compiz = (status == Success && nitems >= 1);
+}

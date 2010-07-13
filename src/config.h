@@ -20,12 +20,11 @@
 #include "utils.h"
 
 extern struct settings_t {
-  bool debug;
   bool verbose;
   bool foreground;
   bool is_compiz;
   bool force_run;
-  char filename[256];
+  char filename[128];
 } settings;
 
 void parse_opt(int, char **);

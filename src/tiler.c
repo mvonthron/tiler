@@ -69,17 +69,19 @@ main(int argc, char **argv)
   /* 
    * daemonize
    *
-  int pid = fork();
-  if(pid < 0)
-    return EXIT_FAILURE;
-  if(pid > 0)
-    return EXIT_SUCCESS;
-  
-  umask(0);
-  
-  int sid = setsid();
-  if(sid < 0)
-    return EXIT_FAILURE;  
+  if(!settings.foreground){
+    int pid = fork();
+    if(pid < 0)
+      return EXIT_FAILURE;
+    if(pid > 0)
+      return EXIT_SUCCESS;
+
+    umask(0);
+
+    int sid = setsid();
+    if(sid < 0)
+      return EXIT_FAILURE;
+  }
   */
   
   /*
@@ -90,7 +92,9 @@ main(int argc, char **argv)
   if(pidfile == -1){
     if(errno == EEXIST)
       D(("pid file already exists"));
-    return 1;
+      
+    if(!settings.force_run)
+      exit(1);
   }
   
   char pidline[32];
