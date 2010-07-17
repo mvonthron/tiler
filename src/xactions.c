@@ -237,7 +237,6 @@ list_windows(Display* display, Window root, Window **window_list, bool only_curr
       
       if( (!only_curr_desktop || window_in_active_desktop(display, w))
           && !is_sticky(w) /* pass as an option ? */){
-        print_window(display, w);
         *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
       }
     }
@@ -399,7 +398,7 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
   /* get _NET_FRAME_EXTENTS */
   get_window_frame_extent(display, window, &left, &right, &top, &bottom);  
   
-  geometry.x      += left;
+  /*geometry.x      += left;*/
   geometry.y      += top;
   geometry.width  -= (left + right);
   geometry.height -= (top + bottom);

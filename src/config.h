@@ -25,12 +25,13 @@ extern struct settings_t {
   bool is_compiz;
   bool force_run;
   char filename[128];
+  char pidfile[128];
 } settings;
 
 void parse_opt(int, char **);
-void version();
-void usage();
 void parse_conf_file(char *);
+void usage();
+void version();
 
 void compute_geometries(Display *, Window);
 

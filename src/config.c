@@ -43,11 +43,12 @@ static const struct option longopts[] = {
 };
 
 struct settings_t settings = {
-  false,  /* verbose */
-  false,  /* foreground */
-  false,  /* is_compiz */
-  false,  /* force_run */
-  ""      /* conf filename */
+  false,            /* verbose */
+  false,            /* foreground */
+  false,            /* is_compiz */
+  false,            /* force_run */
+  "",               /* conf filename */
+  "/tmp/tiler.pid", /* pid filename */
 };
 
 /**
@@ -117,6 +118,11 @@ parse_opt(int argc, char **argv)
       break;
     }
   }
+  
+  if( STREQ(settings.filename, "") ){
+    strcpy(settings.filename, getenv("HOME"));
+    strcat(settings.filename, "/.config/tiler.conf");
+  }
 }
 
 /**
@@ -178,8 +184,10 @@ parse_conf_file(char *filename)
   
   fd = fopen(filename, "r");
   
-  if(fd == NULL)
+  if(fd == NULL){
+    D(("Unable to open \"%s\"", filename));
     exit(1);
+  }
   
   while (fgets(buffer, sizeof(buffer), fd) != NULL) {
     if(*buffer != '#' && *buffer != '\n' ){

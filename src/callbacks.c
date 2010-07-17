@@ -65,7 +65,6 @@ sidebyside(void *data)
   
   if(size < 2 || window_list == NULL)
     return;
-  D(("nb windows on desktop : %d", size));
   
   Geometry_t left  = * (Geometry_t *) bindings[LEFT].data;
   Geometry_t right = * (Geometry_t *) bindings[RIGHT].data;

@@ -30,7 +30,7 @@
 #include "keybindings.h"
 #include "xactions.h"
 
-/* extern display */
+/* extern display & root */
 Display *display=NULL;
 Window root=BadWindow;
 
@@ -41,7 +41,7 @@ cleanup()
   //XCloseDisplay(display);
   
   /* remove pid file */
-  unlink("tiler.pid");
+  unlink(settings.pidfile);
 }
 
 void
@@ -88,10 +88,10 @@ main(int argc, char **argv)
    * pid file creation
    * ensuring single instance of tiler
    */
-  int pidfile = open("tiler.pid", O_CREAT | O_EXCL | O_WRONLY);
+  int pidfile = open(settings.pidfile, O_CREAT | O_EXCL | O_WRONLY);
   if(pidfile == -1){
     if(errno == EEXIST)
-      D(("pid file already exists"));
+      D(("pid file \"%s\" already exists", settings.pidfile));
       
     if(!settings.force_run)
       exit(1);
@@ -105,8 +105,7 @@ main(int argc, char **argv)
 
   display = XOpenDisplay(NULL);
   if (display == NULL) {
-    fprintf(stderr, "%s: cannot connect to X server\n",
-            argv[0]);
+    D(("Cannot connect to X server"));
     return EXIT_FAILURE;
   }
   
@@ -116,7 +115,7 @@ main(int argc, char **argv)
    * configuration parsing 
    * keybinding setup 
    */
-  parse_conf_file("tiler.conf");
+  parse_conf_file(settings.filename);
   check_compiz_wm();
   
   compute_geometries(display, root);
