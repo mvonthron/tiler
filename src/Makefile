@@ -1,6 +1,5 @@
 #
 # Tiler
-# Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
 #
 
 CC = gcc
