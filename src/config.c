@@ -185,8 +185,7 @@ parse_conf_file(char *filename)
   fd = fopen(filename, "r");
   
   if(fd == NULL){
-    D(("Unable to open \"%s\"", filename));
-    exit(1);
+    FATAL(("Unable to open \"%s\"", filename));
   }
   
   while (fgets(buffer, sizeof(buffer), fd) != NULL) {

@@ -17,6 +17,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+
 #define COLOR_GREEN   "\033[92m"
 #define COLOR_RED     "\033[91m"
 #define COLOR_BLUE    "\033[94m"
@@ -33,6 +34,14 @@
     printf("%s[%s:%s(%d)]%s ",COLOR_RED, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
     printf msg;                                                         \
     printf("\n");                                                       \
+  } while (0)
+  
+#define FATAL(msg) do {                                                     \
+    printf("%s[%s:%s(%d)]%s ",COLOR_RED, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
+    printf msg;                                                         \
+    printf("\n");                                                       \
+    cleanup();                                                          \
+    exit(1);                                                            \
   } while (0)
 
 typedef int bool;

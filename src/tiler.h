@@ -57,5 +57,6 @@ typedef enum {
  */
 extern Display *display;
 extern Window root;
+void cleanup();
 
 #endif /* TILER_H */
