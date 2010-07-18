@@ -142,10 +142,10 @@ parse_line(char *token, char *value)
     
     while(subvalue != NULL){
       /* modifier masks */
-      if     (STREQ(value, "CTRL"))  add_modifier(ControlMask);
-      else if(STREQ(value, "SHIFT")) add_modifier(ShiftMask);
-      else if(STREQ(value, "ALT"))   add_modifier(Mod1Mask);
-      else if(STREQ(value, "SUPER")) add_modifier(Mod2Mask);
+      if     (STREQ(subvalue, "CTRL"))  add_modifier(ControlMask);
+      else if(STREQ(subvalue, "SHIFT")) add_modifier(ShiftMask);
+      else if(STREQ(subvalue, "ALT"))   add_modifier(Mod1Mask);
+      else if(STREQ(subvalue, "SUPER")) add_modifier(Mod2Mask);
       
       subvalue = strtok(NULL, "+");
     }
