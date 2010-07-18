@@ -37,12 +37,36 @@ grid(void *data)
   int size=-1;
   
   size = list_windows(display, root, &window_list, true);
+  D(("Nb windows on desktop : %d", size));
   
-  /* squared grid only for now */
-  if(size < 4 || window_list == NULL)
+  if(window_list == NULL)
     return;
-  D(("nb windows on desktop : %d", size));
   
+  /* single window on desktop */
+  if(size == 1){
+    maximize(NULL);
+    return;
+  }
+  
+  /* two windows on desktop, youhou party time \o/ */
+  if(size == 2){
+    sidebyside(NULL);
+    return;
+  }
+  
+  /* two windows on desktop, youhou party time \o/ */
+  if(size == 3){
+    Geometry_t left        = * (Geometry_t *) bindings[LEFT].data;
+    Geometry_t topright    = * (Geometry_t *) bindings[TOPRIGHT].data;
+    Geometry_t bottomright = * (Geometry_t *) bindings[BOTTOMRIGHT].data;
+    
+    fill_geometry(display, window_list[size-1], left);
+    fill_geometry(display, window_list[size-2], topright);
+    fill_geometry(display, window_list[size-3], bottomright);
+    return;
+  }
+  
+  /* stop at 4 win on squared grid for now */
   Geometry_t topleft     = * (Geometry_t *) bindings[TOPLEFT].data;
   Geometry_t topright    = * (Geometry_t *) bindings[TOPRIGHT].data;
   Geometry_t bottomleft  = * (Geometry_t *) bindings[BOTTOMLEFT].data;
