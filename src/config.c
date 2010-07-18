@@ -132,7 +132,7 @@ static void
 parse_line(char *token, char *value)
 {
   int keysym=NoSymbol, i=0;
-  Move_t move;
+  Move_t move=MOVESLEN;
   
   /**
    * special case for modifier masks
@@ -160,6 +160,11 @@ parse_line(char *token, char *value)
     if( STREQ(token, bindings[i].name) )
       move = (Move_t) i;
   
+  if(move == MOVESLEN){
+    D(("Unknown token \"%s\"", token));
+    return;
+  }
+    
   /**
    * value parsing 
    */
