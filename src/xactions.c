@@ -263,6 +263,17 @@ unmaximize_window(Display *display, Window window)
   send_xevent(display, window, state, remove, horz, vert, full, 0);
 }
 
+void
+maximize_window(Display *display, Window window)
+{
+  Atom state = XInternAtom(display, "_NET_WM_STATE", 0);
+  unsigned long horz = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", 0);
+  unsigned long vert = XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", 0);
+  unsigned long add = 1;
+  
+  send_xevent(display, window, state, add, horz, vert, 0, 0);
+}
+
 
 void
 print_window(Display *display, Window win)

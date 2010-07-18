@@ -88,7 +88,7 @@ move(void *data)
 void
 maximize(void *data)
 {
-  D((COLOR_BOLD "*** Maximize ***" COLOR_CLEAR " (not implemented)"));
+  maximize_window(display, get_active_window());
 }
 
 void

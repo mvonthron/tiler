@@ -48,6 +48,7 @@ void changescreen(void *);
 
 /**
  * maximize active window
+ * people may use standard ALT+F10 though
  * @param nothing
  */
 void maximize(void *);

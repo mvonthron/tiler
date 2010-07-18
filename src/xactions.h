@@ -29,6 +29,7 @@ bool window_in_active_desktop(Display *, Window);
 int list_windows(Display*, Window, Window **, int);
 bool window_is_maximized(Display *, Window);
 void unmaximize_window(Display *, Window);
+void maximize_window(Display *, Window);
 
 int get_nb_desktop(Display *);
 int get_nb_screens(Display *);
