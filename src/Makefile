@@ -9,6 +9,11 @@ DEBUG = -g #-pg
 BIN = tiler
 OBJS = keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
 
+# installation
+BINDIR = /usr/bin
+MANPAGE = tiler.1
+MANDIR = /usr/share/man/man1
+
 all: $(BIN)
 
 $(BIN): $(OBJS)
@@ -22,3 +27,7 @@ clean:
 
 mrproper: clean
 	rm -f $(BIN)
+
+install: all
+	install -m 755 $(BIN) $(BINDIR)
+	install -m 644 $(MANPAGE) $(MANDIR)
