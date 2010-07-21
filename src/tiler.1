@@ -7,8 +7,62 @@ Tiler \(em Window tiling utility for X11
 \fBtiler\fR [\fIoptions\fR]
 
 .SH DESCRIPTION
+Tiler is a lightweight tiling utility for X Window Managers. It uses keyboard
+shortcuts to organize windows on your desktop on demand. It provides a 
+very convenient way of moving/resizing windows, for instance by showing
+side-by-side to windows. This is especially useful for large screens.
+
+
+.PP
+By default, it runs as a daemon at X startup (see \fBFILES\fP section).
+
+.PP
+Tiler needs your window manager to be EWMH compliant to work 
+properly. Fortunately this is the case of almost all existing WM... 
+except maybe if you wrote your window manager by yourself, in which 
+case you probably don't need this program!
+
+.PP 
+The program is written in C and only relies on the C and X11 libraries. 
+
 
 .SH OPTIONS
+.IP "\fB-f\fP, \fB\-\-foreground\fP 
+Run program in foreground rather than as a daemon
+
+.IP "\fB-F\fP, \fB\-\-force\fP 
+Force execution of the program even if a pid file is detected
+
+.IP "\fB-c\fP, \fB\-\-config-file\fP \fI<file>\fR
+Use \fI<file>\fR as the configuration file instead of default \fI~/.config/tiler.conf\fR
+
+.IP "    \fB\-\-compiz\fP 
+Enable Compiz behaviour even if not automagically detected by the program.
+Tiler has some workaround when working in such an environment because of
+the differences between Compiz and the rest of the known WM world (viewports 
+instead of virtual desktop for example)
+
+.IP "\fB-v\fP, \fB\-\-verbose\fP 
+Print various status messages, mostly for debugging purpose. You may want 
+to use --foreground along with verbose
+
+.IP "\fB-V\fP, \fB\-\-version\fP 
+Show version number and exit
+
+.IP "\fB-h\fP, \fB\-\-help\fP 
+Print some help information and exit
+
+
+.SH EXAMPLES
+.PP
+The default keybinding CRTL+ALT+KP_3 (Keypad->3) will resize
+and move the active window on the bottom-right quadrant of the screen)
+
+The binding CTRL+ALT+KP_5 will take the 4 most recently used windows and 
+tile them on a square.
+
+The binding CTRL+ALT+KP_Enter will take the 2 most recent windows and place
+them side by side.
 
 .SH FILES
 
