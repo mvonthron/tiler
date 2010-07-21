@@ -1,0 +1,49 @@
+Tiler - Window tiling utility for X11
+=====================================
+
+Tiler is a lightweight tiling utility for X Window Managers. It uses keyboard
+shortcuts to organize windows on your desktop on demand. This provides a 
+very convenient way of moving/resizing windows, for instance by showing
+side-by-side two windows. This is especially useful for large screens.
+
+An admitted goal is to provide a comparable tool as the (very great) 
+WinSplit Revolution available on Windows.
+
+
+
+Examples
+--------
+
+The default configuration file provides keybindings using the keypad
+of full sized keyboards.
+
+CTRL+ALT+3 : resize and move active window to fit the bottom-right quadrant
+  of the screen.
+
+CTRL+ALT+8 : resize and move active window to fit the upper half of the screen.
+
+CTRL+ALT+Enter : organize the two most recently used windows side by side.
+
+CTRL+ALT+5 : organize the four most recently used windows on a grid.
+
+  
+Requirements
+------------
+
+Your window manager is expected to be EWMH compliant and implementing the whole
+window manager standard (freedesktop.org). KWin (KDE) and Metacity (Gnome)
+are ok with that, some workarounds have been written for the use with
+Compiz.
+
+The program is written in C with very few dependencies, you will
+only need the following (and their headers):
+  - libc
+  - libm
+  - libx11
+
+
+Installation
+------------
+
+$ make
+# make install
