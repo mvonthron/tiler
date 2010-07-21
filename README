@@ -47,3 +47,29 @@ Installation
 
 $ make
 # make install
+
+
+Things & stuff
+--------------
+
+Please note that this program is in early development. 
+
+  * Only single screen display is supported at the moment (but this is one
+      of the top priorities)
+  * Layout may look weird because of window constraints such as "resizing
+      step" (mostly in terminals) or minimum window size. Theses may not
+      allow to fit the desired window geometry.
+
+Source code, bug reports, ideas and more at http://www.github.com/gliss/tiler
+  Unfortunately, login is required to post on Github, if you do not have
+  an account, you can also send an email to tiler-dev@acadis.org
+
+
+Licensing
+---------
+
+This program and its documentation are released under the terms of the
+BSD license.
+
+--
+2010, Manuel Vonthron <manuel.vonthron@acadis.org>
