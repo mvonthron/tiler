@@ -31,9 +31,9 @@ Requirements
 ------------
 
 Your window manager is expected to be EWMH compliant and implementing the whole
-window manager standard (freedesktop.org). KWin (KDE) and Metacity (Gnome)
-are ok with that, some workarounds have been written for the use with
-Compiz.
+window manager standard (http://standards.freedesktop.org/wm-spec/latest/). 
+KWin (KDE) and Metacity (Gnome) are ok with that, some workarounds have been
+written for the use with Compiz.
 
 The program is written in C with very few dependencies, you will
 only need the following (and their headers):
@@ -56,9 +56,11 @@ Please note that this program is in early development.
 
   * Only single screen display is supported at the moment (but this is one
       of the top priorities)
-  * Layout may look weird because of window constraints such as "resizing
-      step" (mostly in terminals) or minimum window size. Theses may not
-      allow to fit the desired window geometry.
+  * Layout may sometimes look weird because of window constraints such as 
+      "resizing step" (mostly in terminals) or minimum window size. Theses 
+      may not allow to fit the desired window geometry and especially affects 
+      small resolutions
+      
 
 Source code, bug reports, ideas and more at http://www.github.com/gliss/tiler
   Unfortunately, login is required to post on Github, if you do not have
