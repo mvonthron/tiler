@@ -28,6 +28,22 @@ clean:
 mrproper: clean
 	rm -f $(BIN)
 
-install: all
-	install -m 755 $(BIN) $(BINDIR)
-	install -m 644 $(MANPAGE) $(MANDIR)
+install: 
+	@if [ `whoami` = "root" ] ; then 								\
+		echo "install -m 755 $(BIN) $(BINDIR)";				\
+		install -m 755 $(BIN) $(BINDIR);							\
+		echo "install -m 644 $(MANPAGE) $(MANDIR)";		\
+		install -m 644 $(MANPAGE) $(MANDIR);					\
+	else																						\
+		echo "Need to go root?";											\
+	fi
+
+uninstall:
+	@if [ `whoami` = "root" ] ; then 								\
+		echo "rm -f $(BINDIR)/$(BIN)";								\
+		rm -f $(BINDIR)/$(BIN);												\
+		echo "rm -f $(MANDIR)/$(MANPAGE)";						\
+		rm -f $(MANDIR)/$(MANPAGE);										\
+	else																						\
+		echo "Need to go root?";											\
+	fi
