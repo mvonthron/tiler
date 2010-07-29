@@ -13,6 +13,8 @@ OBJS = keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
 BINDIR = /usr/bin
 MANPAGE = tiler.1
 MANDIR = /usr/share/man/man1
+CONFDIST = tiler.conf.dist
+CONF = $(HOME)/.config/tiler.conf
 
 all: $(BIN)
 
@@ -34,6 +36,8 @@ install:
 		install -m 755 $(BIN) $(BINDIR);							\
 		echo "install -m 644 $(MANPAGE) $(MANDIR)";		\
 		install -m 644 $(MANPAGE) $(MANDIR);					\
+		echo "install -m 644 $(CONFDIST) $(CONF)";		\
+		install -m 644 $(CONFDIST) $(CONF);						\
 	else																						\
 		echo "Need to go root?";											\
 	fi
@@ -44,6 +48,8 @@ uninstall:
 		rm -f $(BINDIR)/$(BIN);												\
 		echo "rm -f $(MANDIR)/$(MANPAGE)";						\
 		rm -f $(MANDIR)/$(MANPAGE);										\
+		echo "rm -f $(CONF)";													\
+		rm -f $(CONF);																\
 	else																						\
 		echo "Need to go root?";											\
 	fi
