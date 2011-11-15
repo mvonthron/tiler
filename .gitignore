@@ -1,0 +1,15 @@
+# editor temp files
+*.swp
+
+# 
+*.o
+
+# perf tools
+*.out.*
+perf.data
+
+# QT Creator project files
+*.files
+*.includes
+*.creator
+.creator.user
