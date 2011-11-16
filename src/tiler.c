@@ -38,10 +38,11 @@ Window root=BadWindow;
 void
 cleanup()
 {
-  //XCloseDisplay(display);
+    clear_bindings();
+    //XCloseDisplay(display);
   
-  /* remove pid file */
-  unlink(settings.pidfile);
+    /* remove pid file */
+    unlink(settings.pidfile);
 }
 
 void

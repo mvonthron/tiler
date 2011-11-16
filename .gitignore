@@ -1,5 +1,6 @@
 # editor temp files
 *.swp
+*~
 
 # 
 *.o
@@ -9,7 +10,8 @@
 perf.data
 
 # QT Creator project files
-*.files
-*.includes
-*.creator
-.creator.user
+Tiler.config
+Tiler.files
+Tiler.includes
+Tiler.creator
+Tiler.creator.user

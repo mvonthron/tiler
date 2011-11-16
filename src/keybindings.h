@@ -22,20 +22,22 @@
 #include "callbacks.h"
 
 typedef struct {
-  char *name;
-  KeySym keysym;   /* default XK_VoidSymbol => NULL */
-  void (*callback)(void*);
-  void *data;
+    char *name;
+    KeySym keysym;   /* default XK_VoidSymbol => NULL */
+    void (*callback)(void*);
+    void *data;
 } Binding_t;
 
 
-extern unsigned int modifiers;
+unsigned int modifiers;
 extern Binding_t bindings[MOVESLEN];
 
 void add_binding(Move_t, KeySym);
+void clear_bindings();
 void add_modifier(unsigned int);
 
 void dispatch(XEvent *);
+void print_key_event(const XKeyEvent);
 
 
 #endif /* KEYBINDINGS_H */

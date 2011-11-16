@@ -47,6 +47,31 @@ Binding_t bindings[MOVESLEN] = {
 };
 
 
+/**
+ *
+ */
+void grab(const KeyCode code, const unsigned int mod)
+{
+    /* set X listener */
+    XGrabKey(display, code, mod,
+             XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
+
+    /* also listen with the annoying NumLock added */
+    XGrabKey(display, code, modifiers | Mod2Mask,
+             XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
+}
+
+void ungrab(const KeyCode code, const unsigned int mod)
+{
+    /* unset X listener */
+    XUngrabKey(display, code, mod,
+               XDefaultRootWindow(display));
+
+    /* also listen with the annoying NumLock added */
+    XUngrabKey(display, code, modifiers | Mod2Mask,
+               XDefaultRootWindow(display));
+}
+
 void add_binding(Move_t move, KeySym keysym)
 {
   extern Display *display;
@@ -56,15 +81,36 @@ void add_binding(Move_t move, KeySym keysym)
          XKeysymToString(keysym) ));
   
   bindings[move].keysym = keysym;
-  
-  /* set X listener */
-  XGrabKey(display, XKeysymToKeycode(display, keysym), modifiers, 
-           XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
+
+  /* set X listening event */
+  grab(XKeysymToKeycode(display, keysym), modifiers);
+  /* ignoring annoying NumLock (Mod2Mask) key */
+  grab(XKeysymToKeycode(display, keysym), modifiers | Mod2Mask);
 }
+
 
 void add_modifier(unsigned int modmask)
 {
   modifiers |= modmask;
+}
+
+void clear_bindings()
+{
+    int i=0;
+
+    for(i=0; i<MOVESLEN; i++){
+        if(XK_VoidSymbol != bindings[i].keysym){
+            ungrab(XKeysymToKeycode(display, bindings[i].keysym), modifiers);
+            ungrab(XKeysymToKeycode(display, bindings[i].keysym), modifiers | Mod2Mask);
+            bindings[i].keysym = XK_VoidSymbol;
+        }
+    }
+}
+
+void print_key_event(const XKeyEvent event)
+{
+    KeySym keysym = XKeycodeToKeysym(event.display, event.keycode, 0);
+    D((COLOR_GREEN "received \"%s\" event" COLOR_CLEAR, XKeysymToString(keysym)));
 }
 
 void dispatch(XEvent *event)
@@ -75,7 +121,9 @@ void dispatch(XEvent *event)
     XKeyEvent e = event->xkey;    
     KeySym keysym = XKeycodeToKeysym(e.display, e.keycode, 0);
     
-    D((COLOR_GREEN "received \"%s\" event" COLOR_CLEAR, XKeysymToString(keysym)));
+    if(settings.verbose){
+        print_key_event(e);
+    }
     
     for(i=0; i<MOVESLEN; i++){
       if(keysym == bindings[i].keysym){        
