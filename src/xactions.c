@@ -390,11 +390,15 @@ get_workarea(Display *display, Window window,
     *y      = ((int*)data)[1];
     *width  = ((int*)data)[2];
     *height = ((int*)data)[3];
-    
-    return;
   }else{
-    return;
+    *x      = -1;
+    *y      = -1;
+    *width  = -1;
+    *height = -1;
   }
+
+  XFree(data);
+  return;
 }
 
 /**
