@@ -168,6 +168,7 @@ get_active_window()
   
   Atom atom = XInternAtom(display, "_NET_ACTIVE_WINDOW", 0);
   Window root = XDefaultRootWindow(display);
+  Window ret;
 
   Atom actual_type;
   int actual_format;
@@ -180,11 +181,13 @@ get_active_window()
                                   &nitems, &bytes_after, &data);
   
   if(status >= Success && nitems > 0)
-    return *((Window*)data);
+    ret = *((Window*)data);
   else{
-    //Xfree(data); //definition problem
-    return 0;
+    ret = 0;
   }
+
+  XFree(data);
+  return ret;
 }
 
 int
@@ -192,6 +195,8 @@ get_active_desktop()
 {
   if(settings.is_compiz)
     return __compiz_get_active_desktop();
+  else
+    return get_desktop(display, get_active_window(display));
 }
 
 bool 
@@ -357,11 +362,14 @@ get_window_frame_extent(Display *display, Window window,
     *right  = ((long*)data)[1];
     *top    = ((long*)data)[2];
     *bottom = ((long*)data)[3];
-    
-    return;
   }else{
-    return;
+    *left   = -1;
+    *right  = -1;
+    *top    = -1;
+    *bottom = -1;
   }
+
+  XFree(data);
 }
 
 /**
@@ -457,5 +465,6 @@ check_compiz_wm()
                                   &nitems, &bytes_after, &data);
 
   settings.is_compiz = (status == Success && nitems >= 1);
+  XFree(data);
 }
 
