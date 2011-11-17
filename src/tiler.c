@@ -34,15 +34,16 @@
 Display *display=NULL;
 Window root=BadWindow;
 
-
 void
 cleanup()
 {
     clear_bindings();
-    //XCloseDisplay(display);
-  
+
     /* remove pid file */
     unlink(settings.pidfile);
+
+    // freeze on close display
+    //XCloseDisplay(display);
 }
 
 void
@@ -51,6 +52,7 @@ signal_handler(int sig)
   if(sig == SIGTERM || sig == SIGINT){
     D(("Exiting"));
 
+    /* @todo should interrupt listening loop with a XSendEvent */
     cleanup();
     exit(0);
   }
@@ -124,13 +126,13 @@ main(int argc, char **argv)
   /**
    * main key event listening loop
    */
-  for (;;) {
+  for(;;) {
     XNextEvent(display, &event);
     dispatch(&event);
   }
-  
+
   cleanup();
   XCloseDisplay(display);
-  
+
   return EXIT_SUCCESS;
 }

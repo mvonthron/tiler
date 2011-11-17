@@ -104,13 +104,40 @@ void clear_bindings()
             ungrab(XKeysymToKeycode(display, bindings[i].keysym), modifiers | Mod2Mask);
             bindings[i].keysym = XK_VoidSymbol;
         }
+
+        if(bindings[i].data != NULL){
+            free(bindings[i].data);
+            bindings[i].data = NULL;
+        }
     }
 }
 
-void print_key_event(const XKeyEvent event)
+void print_key_event(const XKeyEvent event, const bool with_modifiers)
 {
-    KeySym keysym = XKeycodeToKeysym(event.display, event.keycode, 0);
-    D((COLOR_GREEN "received \"%s\" event" COLOR_CLEAR, XKeysymToString(keysym)));
+    char keystring[80] = "\0";
+
+    if(with_modifiers){
+        if (event.state & ControlMask)
+            strcat(keystring, "Ctrl + ");
+        if (event.state & ShiftMask)
+            strcat(keystring, "Shift + ");
+        if (event.state & LockMask)
+            strcat(keystring, "CapsLock + ");
+        if (event.state & Mod1Mask)
+            strcat(keystring, "Alt + ");
+//        if (event.state & Mod2Mask)
+//            strcat(keystring, "NumLock + ");
+        if (event.state & Mod3Mask)
+            strcat(keystring, "RAlt + ");
+        if (event.state & Mod4Mask)
+            strcat(keystring, "Win + ");
+        if (event.state & Mod5Mask)
+            strcat(keystring, "AltGr + ");
+    }
+
+    strcat(keystring, XKeysymToString( XKeycodeToKeysym(event.display, event.keycode, 0) ));
+
+    D((COLOR_GREEN "received \"%s\" key press" COLOR_CLEAR, keystring));
 }
 
 void dispatch(XEvent *event)
@@ -118,11 +145,11 @@ void dispatch(XEvent *event)
   int i=0;
   
   if (event->type == KeyPress) {
-    XKeyEvent e = event->xkey;    
+    XKeyEvent e = event->xkey;
     KeySym keysym = XKeycodeToKeysym(e.display, e.keycode, 0);
     
     if(settings.verbose){
-        print_key_event(e);
+        print_key_event(e, true);
     }
     
     for(i=0; i<MOVESLEN; i++){

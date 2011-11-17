@@ -37,7 +37,7 @@ void clear_bindings();
 void add_modifier(unsigned int);
 
 void dispatch(XEvent *);
-void print_key_event(const XKeyEvent);
+void print_key_event(const XKeyEvent, const bool);
 
 
 #endif /* KEYBINDINGS_H */
