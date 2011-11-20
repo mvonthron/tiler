@@ -123,6 +123,11 @@ main(int argc, char **argv)
   
   compute_geometries(display, root);
   
+  if(settings.verbose){
+     print_config();
+     print_geometries();
+  }
+
   /**
    * main key event listening loop
    */

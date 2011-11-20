@@ -35,4 +35,7 @@ void version();
 
 void compute_geometries(Display *, Window);
 
+void print_config();
+void print_geometries();
+
 #endif /* CONFIG_H */

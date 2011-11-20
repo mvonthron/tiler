@@ -281,3 +281,52 @@ compute_geometries(Display *display, Window root)
   left->height = h;
   bindings[LEFT].data = left;
 }
+
+/**
+ *
+ */
+void
+print_config()
+{
+    printf(COLOR_BOLD"Configuration:\n"COLOR_CLEAR \
+           "  - verbose          %s \n"\
+           "  - foreground       %s \n"\
+           "  - is compiz        %s \n"\
+           "  - force run        %s \n"\
+           "  - config file      %s \n"\
+           "  - pid file         %s \n",
+           (settings.verbose ? "true" : "false"),
+           (settings.foreground ? "true" : "false"),
+           (settings.is_compiz ? "true" : "false"),
+           (settings.force_run ? "true" : "false"),
+           settings.filename, settings.pidfile
+           );
+
+}
+
+void
+print_geometries()
+{
+    int i=0;
+    char arg_buffer[64] = "\0";
+    char key_buffer[32] = "\0";
+
+    printf(COLOR_BOLD"Geometries:\n"COLOR_CLEAR);
+
+    for(i=0; i<MOVESLEN; i++){
+        if(bindings[i].data == NULL){
+            sprintf(arg_buffer, "(null)");
+        }else if(bindings[i].data != NULL && bindings[i].callback == move){
+            Geometry_t *data = (Geometry_t *) bindings[i].data;
+            sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->x, data->y, data->width, data->height);
+        }
+
+        if(bindings[i].keysym == XK_VoidSymbol){
+            sprintf(key_buffer, "(null)");
+        }else{
+            sprintf(key_buffer, "[%s]", XKeysymToString(bindings[i].keysym));
+        }
+
+        printf("  - %-16s %-40s %s\n", bindings[i].name, arg_buffer, key_buffer);
+    }
+}
