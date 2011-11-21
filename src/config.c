@@ -269,14 +269,14 @@ compute_geometries(Display *display, Window root)
   
   /* right */
   right->x      = (int)(w/2);
-  right->y      = (int)(h/2)+y;
+  right->y      = y;
   right->width  = (int)(w/2);
   right->height = h;
   bindings[RIGHT].data = right;
   
   /* left */
   left->x      = x;
-  left->y      = (int)(h/2)+y;
+  left->y      = y;
   left->width  = (int)(w/2);
   left->height = h;
   bindings[LEFT].data = left;
@@ -312,6 +312,11 @@ print_geometries()
     char key_buffer[32] = "\0";
 
     printf(COLOR_BOLD"Geometries:\n"COLOR_CLEAR);
+
+    /* screen size */
+    int x, y, w, h;
+    get_workarea(display, root, &x, &y, &w, &h);
+    printf("  - "COLOR_BOLD"work area"COLOR_CLEAR"        (%d, %d), (%d, %d)\n", x, y, w, h);
 
     for(i=0; i<MOVESLEN; i++){
         if(bindings[i].data == NULL){
