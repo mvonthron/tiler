@@ -44,6 +44,7 @@ Binding_t bindings[MOVESLEN] = {
   {"grid",        XK_VoidSymbol, grid,         NULL},
   {"sidebyside",  XK_VoidSymbol, sidebyside,   NULL},
   {"maximize",    XK_VoidSymbol, maximize,     NULL},
+  {"listwindows", XK_VoidSymbol, listwindows,  NULL},
 };
 
 

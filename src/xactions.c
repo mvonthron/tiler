@@ -106,6 +106,8 @@ __compiz_window_in_active_desktop(Window window)
   XWindowAttributes attributes;
   XGetWindowAttributes(display, window, &attributes);
 
+  D(("Window is at (%d, %d), width (%d, %d), border %d", attributes.x, attributes.y, attributes.width, attributes.height, attributes.border_width));
+
   /* negative coordinates => desktop before */
   if(attributes.x < 0 || attributes.y < 0)
     return false;
@@ -363,10 +365,10 @@ get_window_frame_extent(Display *display, Window window,
     *top    = ((long*)data)[2];
     *bottom = ((long*)data)[3];
   }else{
-    *left   = -1;
-    *right  = -1;
-    *top    = -1;
-    *bottom = -1;
+    *left   = 0;
+    *right  = 0;
+    *top    = 0;
+    *bottom = 0;
   }
 
   XFree(data);
@@ -445,8 +447,7 @@ check_compiz_wm()
   /* already set by "--compiz" option */
   if(settings.is_compiz)
     return;
-    
-    
+
   /* all standard get_wm_name-like failed so far... */
   
   /* 

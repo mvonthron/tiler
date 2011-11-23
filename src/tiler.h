@@ -48,6 +48,8 @@ typedef enum {
   GRID,
   SIDEBYSIDE,
   MAXIMIZE,
+  LISTWINDOWS,
+
   
   MOVESLEN
 } Move_t;

@@ -247,36 +247,36 @@ compute_geometries(Display *display, Window root)
   bindings[TOPLEFT].data = topleft;
 
   /* bottom */
-  bottom->x      = x;
-  bottom->y      = (int)(h/2)+y;
+  bottom->x      = 0;
+  bottom->y      = (int)(h/2)/*+y*/;
   bottom->width  = w;
   bottom->height = (int)(h/2);
   bindings[BOTTOM].data = bottom;
   
   /* bottomright */
   bottomright->x      = (int)(w/2);
-  bottomright->y      = (int)(h/2)+y;
+  bottomright->y      = (int)(h/2)/*+y*/;
   bottomright->width  = (int)(w/2);
   bottomright->height = (int)(h/2);
   bindings[BOTTOMRIGHT].data = bottomright;
   
   /* bottomleft */
   bottomleft->x      = x;
-  bottomleft->y      = (int)(h/2)+y;
+  bottomleft->y      = (int)(h/2)/*+y*/;
   bottomleft->width  = (int)(w/2);
   bottomleft->height = (int)(h/2);
   bindings[BOTTOMLEFT].data = bottomleft;
   
   /* right */
   right->x      = (int)(w/2);
-  right->y      = y;
+  right->y      = 0;
   right->width  = (int)(w/2);
   right->height = h;
   bindings[RIGHT].data = right;
   
   /* left */
-  left->x      = x;
-  left->y      = y;
+  left->x      = 0;
+  left->y      = 0;
   left->width  = (int)(w/2);
   left->height = h;
   bindings[LEFT].data = left;

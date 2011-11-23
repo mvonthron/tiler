@@ -19,39 +19,49 @@
 
 /**
  * dummy function for test purpose 
+ * @param [in] data unused
+ * @ingroup debug
  */
 void dummy(void *);
 
 /**
  * standard move window function
- * @param geometry_t structure
+ * @param [in] data geometry_t structure
  * @todo rename
  */
 void move(void *);
 
 /**
  * organize windows in current desktop on a grid
- * @param nothing
+ * @param [in] data unused
  */
 void grid(void *);
 
 /**
  * organize the two first windows in stack side by side
- * @param nothing
+ * @param [in] data unused
  */
 void sidebyside(void *);
 
 /**
  * change screen
+ * @param [in] data unused
+ * @todo unimplemented
  */
 void changescreen(void *);
 
 /**
  * maximize active window
  * people may use standard ALT+F10 though
- * @param nothing
+ * @param [in] data unused
  */
 void maximize(void *);
 
+/**
+ * list windows on current desktop
+ * @param [in] data unused
+ * @ingroup debug
+ */
+void listwindows(void *);
 
 #endif /* CALLBACKS_H */
