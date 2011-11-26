@@ -17,13 +17,22 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <X11/extensions/Xinerama.h>
+
+#include "tiler.h"
 #include "utils.h"
+
+struct settings_monitor_t {
+    char *name;
+    XineramaScreenInfo *infos;
+};
 
 extern struct settings_t {
   bool verbose;
   bool foreground;
   bool is_compiz;
   bool force_run;
+  int nb_monitors;
   char filename[128];
   char pidfile[128];
 } settings;
@@ -34,6 +43,7 @@ void usage();
 void version();
 
 void compute_geometries(Display *, Window);
+int get_monitors_config(Display *, Window);
 
 void print_config();
 void print_geometries();

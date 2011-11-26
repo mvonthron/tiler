@@ -23,6 +23,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include <X11/extensions/Xinerama.h>
 
 #include "tiler.h"
 #include "utils.h"
@@ -47,8 +48,10 @@ struct settings_t settings = {
   false,            /* foreground */
   false,            /* is_compiz */
   false,            /* force_run */
+  0,                /* nb_monitors */
   "",               /* conf filename */
   "/tmp/tiler.pid", /* pid filename */
+
 };
 
 /**
@@ -206,10 +209,35 @@ parse_conf_file(char *filename)
   fclose(fd);
 }
 
+int
+get_monitors_config(Display *display, Window root)
+{
+    if(!XineramaIsActive(display)){
+        D(("Xinerama disabled"));
+        settings.nb_monitors = 1;
+        return settings.nb_monitors;
+    }
+
+    int i=0;
+    XineramaScreenInfo *scr = XineramaQueryScreens(display, &(settings.nb_monitors));
+
+    D(("Xinerama nb screens: %d", settings.nb_monitors));
+    for(i=0; i< settings.nb_monitors; i++){
+        D(("\t screen %d: (%d, %d), (%d, %d)", scr[i].screen_number, scr[i].x_org, scr[i].y_org, scr[i].width, scr[i].height));
+    }
+
+    XFree(scr);
+    return settings.nb_monitors;
+}
+
 void
 compute_geometries(Display *display, Window root)
 {
   extern Binding_t bindings[MOVESLEN];
+
+  /* get monitors info */
+  get_monitors_config(display, root);
+
   Geometry_t *top      = (Geometry_t *)malloc(sizeof(Geometry_t));
   Geometry_t *topright = (Geometry_t *)malloc(sizeof(Geometry_t));
   Geometry_t *topleft  = (Geometry_t *)malloc(sizeof(Geometry_t));
@@ -293,12 +321,14 @@ print_config()
            "  - foreground       %s \n"\
            "  - is compiz        %s \n"\
            "  - force run        %s \n"\
+           "  - nb screens       %d \n"\
            "  - config file      %s \n"\
            "  - pid file         %s \n",
            (settings.verbose ? "true" : "false"),
            (settings.foreground ? "true" : "false"),
            (settings.is_compiz ? "true" : "false"),
            (settings.force_run ? "true" : "false"),
+           settings.nb_monitors,
            settings.filename, settings.pidfile
            );
 

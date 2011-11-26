@@ -4,7 +4,7 @@
 
 CC = gcc
 CFLAGS = -Wall
-LFLAGS = -lX11 -lm
+LFLAGS = -lX11 -lm -lXinerama
 DEBUG = -g #-pg
 BIN = tiler
 OBJS = keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
