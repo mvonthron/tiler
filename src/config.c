@@ -44,6 +44,7 @@ static const struct option longopts[] = {
 };
 
 struct settings_t settings = {
+  NULL,             /* monitors */
   false,            /* verbose */
   false,            /* foreground */
   false,            /* is_compiz */
@@ -219,14 +220,25 @@ get_monitors_config(Display *display, Window root)
     }
 
     int i=0;
-    XineramaScreenInfo *scr = XineramaQueryScreens(display, &(settings.nb_monitors));
+    XineramaScreenInfo *infos = XineramaQueryScreens(display, &(settings.nb_monitors));
 
     D(("Xinerama nb screens: %d", settings.nb_monitors));
+    settings.monitors = malloc(settings.nb_monitors * sizeof(struct settings_monitor_t));
+
     for(i=0; i< settings.nb_monitors; i++){
-        D(("\t screen %d: (%d, %d), (%d, %d)", scr[i].screen_number, scr[i].x_org, scr[i].y_org, scr[i].width, scr[i].height));
+        settings.monitors[i].id = infos[i].screen_number;
+        settings.monitors[i].infos.x = infos[i].x_org;
+        settings.monitors[i].infos.y = infos[i].y_org;
+        settings.monitors[i].infos.width  = infos[i].width;
+        settings.monitors[i].infos.height = infos[i].height;
+
+        D(("\tscreen %d: (%d, %d), (%d, %d)",
+           settings.monitors[i].id,
+           settings.monitors[i].infos.x, settings.monitors[i].infos.y,
+           settings.monitors[i].infos.width, settings.monitors[i].infos.height));
     }
 
-    XFree(scr);
+    XFree(infos);
     return settings.nb_monitors;
 }
 
@@ -364,4 +376,9 @@ print_geometries()
 
         printf("  - %-16s %-40s %s\n", bindings[i].name, arg_buffer, key_buffer);
     }
+}
+
+void free_config()
+{
+    FREE(settings.monitors);
 }

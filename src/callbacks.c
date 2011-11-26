@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 #include "tiler.h"
+#include "config.h"
 #include "utils.h"
 #include "keybindings.h"
 #include "xactions.h"

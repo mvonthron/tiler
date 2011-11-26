@@ -44,6 +44,8 @@ cleanup()
 
     // freeze on close display
     //XCloseDisplay(display);
+
+    free_config();
 }
 
 void
