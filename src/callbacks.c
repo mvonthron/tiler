@@ -128,11 +128,15 @@ listwindows(void *data)
 {
     Window *window_list=NULL;
     extern Binding_t bindings[MOVESLEN];
-    int size=-1;
+    int size=-1, i=0;
 
     size = list_windows(display, root, &window_list, true);
     D(("Nb windows on desktop : %d", size));
 
     if(window_list == NULL)
       return;
+
+    for(i=0; i< size; i++){
+        get_window_geometry(display, window_list[i], NULL);
+    }
 }

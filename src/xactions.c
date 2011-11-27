@@ -339,6 +339,20 @@ move_resize_window(Display *display, Window window, Geometry_t geometry)
 void
 get_window_geometry(Display *display, Window window, Geometry_t *geometry)
 {
+    XWindowAttributes attributes;
+    XGetWindowAttributes(display, window, &attributes);
+
+    D(("Window is at (%d, %d), size (%d, %d), border %d",
+       attributes.x, attributes.y,
+       attributes.width, attributes.height,
+       attributes.border_width));
+
+    if(geometry != NULL){
+        geometry->x = attributes.x;
+        geometry->y = attributes.y;
+        geometry->width  = attributes.width;
+        geometry->height = attributes.height;
+    }
 }
 
 void
