@@ -285,14 +285,24 @@ maximize_window(Display *display, Window window)
 void
 print_window(Display *display, Window win)
 {
-  char *name;
+  char *name, current_desktop_marker=' ';
   Atom *atoms;
   int nitems;
+  Geometry_t geometry;
 
   XFetchName(display, win, &name);
+  get_window_geometry(display, win, &geometry);
+
   atoms = XListProperties(display, win, &nitems);
-  
-  printf("Window 0x%x on desktop %d/%d (\"%s\")\t[%d]\n", (unsigned int)win, get_desktop(display, win)+1, 4, name, nitems);
+
+  if(window_in_active_desktop(display, win))
+      current_desktop_marker = '*';
+
+  /* @todo print also monitor id + update desktop number */
+  printf("%c Window 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d (\"%s\")\t[%d]\n",
+         current_desktop_marker, (unsigned int)win,
+         geometry.x, geometry.y, geometry.width, geometry.height,
+         get_desktop(display, win)+1, 4, name, nitems);
 }
 
 void
@@ -340,16 +350,21 @@ void
 get_window_geometry(Display *display, Window window, Geometry_t *geometry)
 {
     XWindowAttributes attributes;
+    Window retwin;
+    int x, y;
+
     XGetWindowAttributes(display, window, &attributes);
 
+    XTranslateCoordinates(display, window, root, 0, 0, &x, &y, &retwin);
+
     D(("Window is at (%d, %d), size (%d, %d), border %d",
-       attributes.x, attributes.y,
+       x, y,
        attributes.width, attributes.height,
        attributes.border_width));
 
     if(geometry != NULL){
-        geometry->x = attributes.x;
-        geometry->y = attributes.y;
+        geometry->x = x;
+        geometry->y = y;
         geometry->width  = attributes.width;
         geometry->height = attributes.height;
     }

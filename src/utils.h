@@ -53,7 +53,4 @@ typedef int bool;
     ptr = NULL;                         \
 } while(0)
 
-void error(char *, ...);
-void fatal(char *, ...);
-
 #endif /* UTILS_H */

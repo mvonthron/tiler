@@ -17,13 +17,3 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-void 
-error(char *format, ...)
-{
-}
-
-void 
-fatal(char *format, ...)
-{
-}
