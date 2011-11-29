@@ -103,24 +103,24 @@ __compiz_get_active_desktop()
 static bool 
 __compiz_window_in_active_desktop(Window window)
 {
-  XWindowAttributes attributes;
-  XGetWindowAttributes(display, window, &attributes);
+  Geometry_t geometry;
+  get_window_geometry(display, window, &geometry);
 
-  D(("Window is at (%d, %d), width (%d, %d), border %d", attributes.x, attributes.y, attributes.width, attributes.height, attributes.border_width));
+  D(("Window is at (%d, %d), size (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
 
   /* negative coordinates => desktop before */
-  if(attributes.x < 0 || attributes.y < 0)
+  if(geometry.x < 0 || geometry.y < 0)
     return false;
     
   int x=-1, y=-1, w=-1, h=-1;
   get_workarea(display, root, &x, &y, &w, &h);
 
   /* too far away */
-  if(attributes.x > w || attributes.y > h)
+  if(geometry.x > w || geometry.y > h)
     return false;
   
   /* not in workarea : probably a dock or stuff like that */
-  if(attributes.x < x || attributes.y < y)
+  if(geometry.x < x || geometry.y < y)
     return false;
 
   return true;
@@ -339,6 +339,19 @@ move_resize_window(Display *display, Window window, Geometry_t geometry)
 void
 get_window_geometry(Display *display, Window window, Geometry_t *geometry)
 {
+    XWindowAttributes attributes;
+    Window retwin;
+    int x, y;
+
+    XGetWindowAttributes(display, window, &attributes);
+    XTranslateCoordinates(display, window, root, 0, 0, &x, &y, &retwin);
+
+    if(geometry != NULL){
+        geometry->x = x;
+        geometry->y = y;
+        geometry->width  = attributes.width;
+        geometry->height = attributes.height;
+    }
 }
 
 void
