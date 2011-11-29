@@ -78,6 +78,37 @@ get_2int_property(Display *display, Window window, char *property, int *data0, i
   }
 }
 
+static bool
+get_4int_property(Display *display, Window window, char *property, int *data0, int *data1, int *data2, int *data3)
+{
+  Atom at, actual_type;
+  int actual_format, status, ret=true;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+
+
+  at = XInternAtom(display, property, 0);
+  status = XGetWindowProperty(display, window, at, 0, (~0L), 0,
+                              XA_CARDINAL, &actual_type, &actual_format,
+                              &nitems, &bytes_after, &data);
+  if(status >= Success
+     && nitems >= 4
+     && actual_type == XA_CARDINAL
+     && actual_format == 32){
+
+    *data0 = ((int *)data)[0];
+    *data1 = ((int *)data)[1];
+    *data2 = ((int *)data)[2];
+    *data3 = ((int *)data)[3];
+  }
+  else{
+      ret = false;
+  }
+
+  XFree(data);
+  return ret;
+}
+
 
 /**
  * Compiz specific stuff
@@ -124,6 +155,18 @@ __compiz_window_in_active_desktop(Window window)
     return false;
 
   return true;
+}
+
+static void
+__compiz_get_window_adjustments(Window window, int *x, int *y, int *width, int *height)
+{
+    /* default values */
+    *x      =  -4; /* NOT taken into account so far! */
+    *y      =   0;
+    *width  =   5;
+    *height =   4;
+
+    get_4int_property(display, window, "_COMPIZ_WM_WINDOW_BLUR_DECOR", x, y, width, height);
 }
 
 /*
@@ -358,70 +401,19 @@ void
 get_window_frame_extent(Display *display, Window window, 
                         int *left, int *right, int *top, int *bottom) /* returning values */
 {
-  Atom actual_type;
-  int actual_format;
-  unsigned long nitems;
-  unsigned long bytes_after;
-  unsigned char *data;
-  
-  Atom atom = XInternAtom(display, "_NET_FRAME_EXTENTS", 0);
-  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
-                                  XA_CARDINAL, &actual_type, &actual_format,
-                                  &nitems, &bytes_after, &data);
-  if(status >= Success 
-     && nitems >= 4
-     && actual_type == XA_CARDINAL
-     && actual_format == 32){
-
-    *left   = ((long*)data)[0];
-    *right  = ((long*)data)[1];
-    *top    = ((long*)data)[2];
-    *bottom = ((long*)data)[3];
-  }else{
-    *left   = 0;
-    *right  = 0;
-    *top    = 0;
-    *bottom = 0;
-  }
-
-  XFree(data);
+  *left = *right = *top = *bottom= 0;
+  get_4int_property(display, window, "_NET_FRAME_EXTENTS", left, right, top, bottom);
 }
 
 /**
- * @todo factoriser get_property_4int
+ *
  */
 void
 get_workarea(Display *display, Window window, 
              int *x, int *y, int *width, int *height) /* returning values */
 {
-  Atom actual_type;
-  int actual_format;
-  unsigned long nitems;
-  unsigned long bytes_after;
-  unsigned char *data;
-  
-  Atom atom = XInternAtom(display, "_NET_WORKAREA", 0);
-  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
-                                  XA_CARDINAL, &actual_type, &actual_format,
-                                  &nitems, &bytes_after, &data);
-  if(status >= Success 
-     && nitems >= 4
-     && actual_type == XA_CARDINAL
-     && actual_format == 32){
-
-    *x      = ((int*)data)[0];
-    *y      = ((int*)data)[1];
-    *width  = ((int*)data)[2];
-    *height = ((int*)data)[3];
-  }else{
-    *x      = -1;
-    *y      = -1;
-    *width  = -1;
-    *height = -1;
-  }
-
-  XFree(data);
-  return;
+    *x = *y = *width = *height = 0;
+    get_4int_property(display, window, "_NET_WORKAREA", x, y, width, height);
 }
 
 /**
@@ -431,18 +423,33 @@ get_workarea(Display *display, Window window,
 void 
 fill_geometry(Display *display, Window window, Geometry_t geometry)
 {
-  int right, left, top, bottom;
-  
-  /* get _NET_FRAME_EXTENTS */
-  get_window_frame_extent(display, window, &left, &right, &top, &bottom);  
-  
-  /*geometry.x      += left;*/
-  geometry.y      += top;
-  geometry.width  -= (left + right);
-  geometry.height -= (top + bottom);
+    int right, left, top, bottom;
 
-  move_resize_window(display, window, geometry);
-}
+    D(("Adjusting: (%d, %d), (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
+
+    /* get _NET_FRAME_EXTENTS */
+    get_window_frame_extent(display, window, &left, &right, &top, &bottom);
+
+    geometry.x      += left;
+    geometry.y      += top;
+    geometry.width  -= (left + right);
+    geometry.height -= (top + bottom);
+
+    D(("\t=> (%d, %d), (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
+
+    if(settings.is_compiz){
+        int x, y, width, height;
+        __compiz_get_window_adjustments(window, &x, &y, &width, &height);
+        geometry.x      += x;
+        geometry.y      += y;
+        geometry.width  += width;
+        geometry.height += height;
+
+        D(("\t=> (%d, %d), (%d, %d) [compiz]", geometry.x, geometry.y, geometry.width, geometry.height));
+    }
+
+    move_resize_window(display, window, geometry);
+  }
 
 
 int
