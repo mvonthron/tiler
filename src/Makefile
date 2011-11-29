@@ -7,7 +7,7 @@ CFLAGS = -Wall
 LFLAGS = -lX11 -lm
 DEBUG = -g #-pg
 BIN = tiler
-OBJS = keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
+OBJS = keybindings.o config.o callbacks.o xactions.o utils.h tiler.o
 
 # installation
 BINDIR = /usr/bin

@@ -55,11 +55,11 @@ get_int_property(Display *display, Window window, char *property)
   return value;
 }
 
-static void
+static bool
 get_2int_property(Display *display, Window window, char *property, int *data0, int *data1)
 {
   Atom at, actual_type;
-  int actual_format, status;
+  int actual_format, status, ret=true;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   
@@ -76,6 +76,12 @@ get_2int_property(Display *display, Window window, char *property, int *data0, i
     *data0 = ((int *)data)[0];
     *data1 = ((int *)data)[1];
   }
+  else{
+      ret = false;
+  }
+
+  XFree(data);
+  return ret;
 }
 
 static bool
@@ -107,6 +113,24 @@ get_4int_property(Display *display, Window window, char *property, int *data0, i
 
   XFree(data);
   return ret;
+}
+
+static int
+get_property(Display *display, Window window, char *property, void *data)
+{
+    Atom actual_type, atom;
+    int actual_format, status=-1;
+    unsigned long nitems, bytes_after;
+
+    atom = XInternAtom(display, property, 0);
+    status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                AnyPropertyType, &actual_type, &actual_format,
+                                &nitems, &bytes_after, (unsigned char **)&data);
+
+    if(status >= Success && nitems > 0)
+      return nitems;
+    else
+      return -1;
 }
 
 
@@ -176,15 +200,15 @@ __compiz_get_window_adjustments(Window window, int *x, int *y, int *width, int *
 static bool 
 is_sticky(Window window)
 {
-  Atom actual_type;
+  Atom actual_type, atom, atom_sticky;
   int i, actual_format;
   unsigned long nitems;
   unsigned long bytes_after;
-  unsigned long *data;
+  unsigned char *data;
   
-  unsigned long atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
-  
-  Atom atom = XInternAtom(display, "_NET_WM_STATE", 0);
+  atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
+  atom = XInternAtom(display, "_NET_WM_STATE", 0);
+
   int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
                                   XA_ATOM, &actual_type, &actual_format,
                                   &nitems, &bytes_after, &data);
@@ -210,8 +234,9 @@ Window
 get_active_window()
 {
   extern Display *display;
-  
+
   Atom atom = XInternAtom(display, "_NET_ACTIVE_WINDOW", 0);
+  unsigned char *data=NULL;
   Window root = XDefaultRootWindow(display);
   Window ret;
 
@@ -219,19 +244,20 @@ get_active_window()
   int actual_format;
   unsigned long nitems;
   unsigned long bytes_after;
-  unsigned char *data=NULL;
 
   int status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
                                   AnyPropertyType, &actual_type, &actual_format,
                                   &nitems, &bytes_after, &data);
-  
+
   if(status >= Success && nitems > 0)
     ret = *((Window*)data);
   else{
     ret = 0;
   }
 
-  XFree(data);
+  //@todo fix
+  //int size = get_property(display, root, "_NET_ACTIVE_WINDOW", (void *) data);
+
   return ret;
 }
 

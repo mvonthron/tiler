@@ -18,6 +18,7 @@
 #define TILER_H
 
 #include <X11/Xlib.h>
+#define TILER_VERSION_STR   "0.1b"
 
 /**
  * 

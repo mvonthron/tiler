@@ -288,13 +288,14 @@ compute_geometries(Display *display, Window root)
 void
 print_config()
 {
-    printf(COLOR_BOLD"Configuration:\n"COLOR_CLEAR \
+    printf(COLOR_BOLD"Configuration: Tiler (%s)\n"COLOR_CLEAR \
            "  - verbose          %s \n"\
            "  - foreground       %s \n"\
            "  - is compiz        %s \n"\
            "  - force run        %s \n"\
            "  - config file      %s \n"\
            "  - pid file         %s \n",
+           TILER_VERSION_STR,
            (settings.verbose ? "true" : "false"),
            (settings.foreground ? "true" : "false"),
            (settings.is_compiz ? "true" : "false"),
