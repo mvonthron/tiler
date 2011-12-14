@@ -35,7 +35,7 @@ static int
 get_int_property(Display *display, Window window, char *property)
 {
   Atom at, actual_type;
-  int actual_format, status, value;
+  int actual_format, status, value=0;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   
@@ -285,24 +285,29 @@ maximize_window(Display *display, Window window)
 void
 print_window(Display *display, Window win)
 {
-  char *name, current_desktop_marker=' ';
-  Atom *atoms;
-  int nitems;
-  Geometry_t geometry;
+    char *name, current_desktop_marker=' ', current_monitor_marker=' ';
+    Atom *atoms;
+    int nitems, monitor_id;
+    Geometry_t geometry;
 
-  XFetchName(display, win, &name);
-  get_window_geometry(display, win, &geometry);
+    XFetchName(display, win, &name);
+    get_window_geometry(display, win, &geometry);
 
-  atoms = XListProperties(display, win, &nitems);
+    atoms = XListProperties(display, win, &nitems);
 
-  if(window_in_active_desktop(display, win))
+    if(window_in_active_desktop(display, win))
       current_desktop_marker = '*';
+    D((">> %x", (unsigned int)get_active_window()));
+    monitor_id = get_monitor_for_window(win);
+    /* no specific marker if nb_monitor is 1 */
+    if(settings.nb_monitors > 1 && current_desktop_marker == '*' && get_monitor_for_window(win) == get_monitor_for_window(get_active_window()))
+        current_monitor_marker = '+';
 
-  /* @todo print also monitor id + update desktop number */
-  printf("%c Window 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d (\"%s\")\t[%d]\n",
-         current_desktop_marker, (unsigned int)win,
+    /* @todo print also monitor id + update desktop number */
+    printf("%c%c Window 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d monitor %d/%d (\"%s\")\t[%d]\n",
+         current_desktop_marker, current_monitor_marker, (unsigned int)win,
          geometry.x, geometry.y, geometry.width, geometry.height,
-         get_desktop(display, win)+1, 4, name, nitems);
+         get_desktop(display, win)+1, 4, monitor_id, settings.nb_monitors, name, nitems);
 }
 
 void
@@ -469,6 +474,28 @@ get_desktop(Display *display, Window window)
     return -1;          /* not supported (@todo) */
   else
     return get_int_property(display, window, "_NET_WM_DESKTOP");
+}
+
+int
+get_monitor_for_window(const Window window)
+{
+    /* let's save some time */
+    if(settings.nb_monitors == 1)
+        return 0;
+
+    /* general case */
+    int i=0;
+    Geometry_t w;
+    get_window_geometry(display, window, &w);
+
+    for(i=0; i<settings.nb_monitors; i++){
+        if( (w.x >= settings.monitors[i].infos.x && w.x < settings.monitors[i].infos.x + settings.monitors[i].infos.width)
+                && (w.y >= settings.monitors[i].infos.y && w.y < settings.monitors[i].infos.y + settings.monitors[i].infos.height) )
+            return i;
+    }
+
+    /* default */
+    return 0;
 }
 
 void
