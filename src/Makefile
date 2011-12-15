@@ -30,6 +30,10 @@ clean:
 mrproper: clean
 	rm -f $(BIN)
 
+check:
+	#astyle --style=kr --indent=spaces=4 --indent-preprocessor --pad-oper --unpad-paren --align-pointer=name
+	#cppcheck --enable=all .
+
 install: 
 	@if [ `whoami` = "root" ] ; then 								\
 		echo "install -m 755 $(BIN) $(BINDIR)";				\
