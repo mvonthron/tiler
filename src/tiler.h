@@ -23,35 +23,35 @@
  * 
  */
 typedef struct {
-  int x;
-  int y;
-  int width;
-  int height;
+    int x;
+    int y;
+    int width;
+    int height;
 } Geometry_t;
 
 /**
- * 
+ * @todo move to bindings.h
  */
 typedef enum {
-  TOP,
-  TOPRIGHT,
-  TOPLEFT,
-  BOTTOM,
-  BOTTOMRIGHT,
-  BOTTOMLEFT,
-  RIGHT,
-  LEFT,
-  
-  LEFTSCREEN,
-  RIGHTSCREEN,
-  
-  GRID,
-  SIDEBYSIDE,
-  MAXIMIZE,
-  LISTWINDOWS,
+    TOP,
+    TOPRIGHT,
+    TOPLEFT,
+    BOTTOM,
+    BOTTOMRIGHT,
+    BOTTOMLEFT,
+    RIGHT,
+    LEFT,
 
-  
-  MOVESLEN
+    LEFTSCREEN,
+    RIGHTSCREEN,
+
+    GRID,
+    SIDEBYSIDE,
+    MAXIMIZE,
+    LISTWINDOWS,
+
+
+    MOVESLEN
 } Move_t;
 
 /**

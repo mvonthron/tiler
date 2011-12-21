@@ -117,13 +117,14 @@ main(int argc, char **argv)
   root = XDefaultRootWindow(display);
   
   /* 
-   * configuration parsing 
+   * configuration parsing
    * keybinding setup 
    */
   parse_conf_file(settings.filename);
   check_compiz_wm();
   
   compute_geometries(display, root);
+  setup_bindings_data();
   
   if(settings.verbose){
      print_config();

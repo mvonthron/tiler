@@ -23,6 +23,7 @@
 #include <X11/keysym.h>
 
 #include "keybindings.h"
+#include "geometries.h"
 #include "callbacks.h"
 #include "config.h"
 #include "xactions.h"
@@ -30,7 +31,10 @@
 
 unsigned int modifiers=0;
 
-Binding_t bindings[MOVESLEN] = {
+/**
+ * @todo remove
+ */
+Binding_t bindings_old[MOVESLEN] = {
   {"top",         XK_VoidSymbol, move,         NULL},
   {"topright",    XK_VoidSymbol, move,         NULL},
   {"topleft",     XK_VoidSymbol, move,         NULL},
@@ -47,6 +51,28 @@ Binding_t bindings[MOVESLEN] = {
   {"listwindows", XK_VoidSymbol, listwindows,  NULL},
 };
 
+/**
+ * contains the reference table of bindings
+ * we need one table like this one for each monitor
+ */
+static const Binding_t bindings_reference[MOVESLEN] = {
+  {"top",         XK_VoidSymbol, move,         NULL},
+  {"topright",    XK_VoidSymbol, move,         NULL},
+  {"topleft",     XK_VoidSymbol, move,         NULL},
+  {"bottom",      XK_VoidSymbol, move,         NULL},
+  {"bottomright", XK_VoidSymbol, move,         NULL},
+  {"bottomleft",  XK_VoidSymbol, move,         NULL},
+  {"right",       XK_VoidSymbol, move,         NULL},
+  {"left",        XK_VoidSymbol, move,         NULL},
+  {"leftscreen",  XK_VoidSymbol, changescreen, NULL},
+  {"rightscreen", XK_VoidSymbol, changescreen, NULL},
+  {"grid",        XK_VoidSymbol, grid,         NULL},
+  {"sidebyside",  XK_VoidSymbol, sidebyside,   NULL},
+  {"maximize",    XK_VoidSymbol, maximize,     NULL},
+  {"listwindows", XK_VoidSymbol, listwindows,  NULL},
+};
+
+Binding_t **bindings = NULL;
 
 /**
  *
@@ -78,10 +104,10 @@ void add_binding(Move_t move, KeySym keysym)
   extern Display *display;
   
   D(("binding \"%s\" to \"%s\"", 
-         bindings[move].name, 
+         bindings_old[move].name,
          XKeysymToString(keysym) ));
   
-  bindings[move].keysym = keysym;
+  bindings_old[move].keysym = keysym;
 
   /* set X listening event */
   grab(XKeysymToKeycode(display, keysym), modifiers);
@@ -95,20 +121,91 @@ void add_modifier(unsigned int modmask)
   modifiers |= modmask;
 }
 
+/**
+ * pre-compute data needed by callback functions
+ * setup an array of Binding_t for each monitor
+ * geometries and other callback data are differents for each monitor
+ *
+ * "bindings" as structure (for two monitors):
+ *   bindings = {
+ *      [0] = {
+ *        {"top",         XK_VoidSymbol, move,         NULL},
+ *        {"topright",    XK_VoidSymbol, move,         NULL},
+ *        {"topleft",     XK_VoidSymbol, move,         NULL},
+ *        {"bottom",      XK_VoidSymbol, move,         NULL},
+ *        {"bottomright", XK_VoidSymbol, move,         NULL},
+ *        {"bottomleft",  XK_VoidSymbol, move,         NULL},
+ *        {"right",       XK_VoidSymbol, move,         NULL},
+ *        {"left",        XK_VoidSymbol, move,         NULL},
+ *        {"leftscreen",  XK_VoidSymbol, changescreen, NULL},
+ *        {"rightscreen", XK_VoidSymbol, changescreen, NULL},
+ *        {"grid",        XK_VoidSymbol, grid,         NULL},
+ *        {"sidebyside",  XK_VoidSymbol, sidebyside,   NULL},
+ *        {"maximize",    XK_VoidSymbol, maximize,     NULL},
+ *        {"listwindows", XK_VoidSymbol, listwindows,  NULL},
+ *      },
+ *      [1] = {
+ *        {"top",         XK_VoidSymbol, move,         NULL},
+ *        {"topright",    XK_VoidSymbol, move,         NULL},
+ *        {"topleft",     XK_VoidSymbol, move,         NULL},
+ *        {"bottom",      XK_VoidSymbol, move,         NULL},
+ *        {"bottomright", XK_VoidSymbol, move,         NULL},
+ *        {"bottomleft",  XK_VoidSymbol, move,         NULL},
+ *        {"right",       XK_VoidSymbol, move,         NULL},
+ *        {"left",        XK_VoidSymbol, move,         NULL},
+ *        {"leftscreen",  XK_VoidSymbol, changescreen, NULL},
+ *        {"rightscreen", XK_VoidSymbol, changescreen, NULL},
+ *        {"grid",        XK_VoidSymbol, grid,         NULL},
+ *        {"sidebyside",  XK_VoidSymbol, sidebyside,   NULL},
+ *        {"maximize",    XK_VoidSymbol, maximize,     NULL},
+ *        {"listwindows", XK_VoidSymbol, listwindows,  NULL},
+ *      },
+ *   }
+ *
+ * @see Binding_t
+ */
+void setup_bindings_data()
+{
+    TODO(("replace compute_geometries"));
+
+    if(settings.monitors == NULL){
+        FATAL(("\"settings.monitors\" is not available. (did you call setup_config first ?)"));
+    }
+
+    bindings = (Binding_t **)malloc((settings.nb_monitors)*sizeof(Binding_t *));
+    if(bindings == NULL)
+        FATAL(("Could not allocate memory for binding data"));
+
+    int i=0;
+    for(i=0; i<settings.nb_monitors; i++){
+
+        bindings[i] = (Binding_t *)malloc(sizeof(bindings_reference));
+        if(bindings[i] == NULL)
+            FATAL(("Could not allocate memory for binding data"));
+
+        /* fill structure with default and constant values */
+        memcpy(bindings[i], bindings_reference, sizeof(bindings_reference));
+
+        /* compute specific data for each monitor */
+        compute_geometries_for_monitor(i, bindings[i]);
+    }
+}
+
+
 void clear_bindings()
 {
     int i=0;
 
     for(i=0; i<MOVESLEN; i++){
-        if(XK_VoidSymbol != bindings[i].keysym){
-            ungrab(XKeysymToKeycode(display, bindings[i].keysym), modifiers);
-            ungrab(XKeysymToKeycode(display, bindings[i].keysym), modifiers | Mod2Mask);
-            bindings[i].keysym = XK_VoidSymbol;
+        if(XK_VoidSymbol != bindings_old[i].keysym){
+            ungrab(XKeysymToKeycode(display, bindings_old[i].keysym), modifiers);
+            ungrab(XKeysymToKeycode(display, bindings_old[i].keysym), modifiers | Mod2Mask);
+            bindings_old[i].keysym = XK_VoidSymbol;
         }
 
-        if(bindings[i].data != NULL){
-            free(bindings[i].data);
-            bindings[i].data = NULL;
+        if(bindings_old[i].data != NULL){
+            free(bindings_old[i].data);
+            bindings_old[i].data = NULL;
         }
     }
 }
@@ -141,6 +238,9 @@ void print_key_event(const XKeyEvent event, const bool with_modifiers)
     D((COLOR_GREEN "received \"%s\" key press" COLOR_CLEAR, keystring));
 }
 
+/**
+ * event parsing
+ */
 void dispatch(XEvent *event)
 {
   int i=0;
@@ -154,9 +254,9 @@ void dispatch(XEvent *event)
     }
     
     for(i=0; i<MOVESLEN; i++){
-      if(keysym == bindings[i].keysym){        
-        if(bindings[i].callback != NULL)
-          bindings[i].callback(bindings[i].data);
+      if(keysym == bindings_old[i].keysym){
+        if(bindings_old[i].callback != NULL)
+          bindings_old[i].callback(bindings_old[i].data);
       }
     }
   }

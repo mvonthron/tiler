@@ -137,7 +137,7 @@ is_sticky(Window window)
   int i, actual_format;
   unsigned long nitems;
   unsigned long bytes_after;
-  unsigned long *data;
+  unsigned char *data;
   
   unsigned long atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
   
@@ -218,14 +218,14 @@ int
 list_windows(Display* display, Window root, Window **window_list, bool only_curr_desktop)
 {
   Atom actual_type, atom;
-  int actual_format, curr_desktop=42, status=-1, i=0, actual_size=0;
+  int actual_format, /*curr_desktop=42,*/ status=-1, i=0, actual_size=0;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   Window w;
   
   assert(*window_list == NULL);
   
-  curr_desktop = get_desktop(display, get_active_window(display));
+  //curr_desktop = get_desktop(display, get_active_window(display));
   
   atom = XInternAtom(display, "_NET_CLIENT_LIST_STACKING", 0);
   status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
@@ -286,14 +286,14 @@ void
 print_window(Display *display, Window win)
 {
     char *name, current_desktop_marker=' ', current_monitor_marker=' ';
-    Atom *atoms;
     int nitems, monitor_id;
     Geometry_t geometry;
 
     XFetchName(display, win, &name);
     get_window_geometry(display, win, &geometry);
 
-    atoms = XListProperties(display, win, &nitems);
+    /* get number of properties attached to the window */
+    XListProperties(display, win, &nitems);
 
     if(window_in_active_desktop(display, win))
       current_desktop_marker = '*';
@@ -303,7 +303,6 @@ print_window(Display *display, Window win)
     if(settings.nb_monitors > 1 && current_desktop_marker == '*' && get_monitor_for_window(win) == get_monitor_for_window(get_active_window()))
         current_monitor_marker = '+';
 
-    /* @todo print also monitor id + update desktop number */
     printf("%c%c Window 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d monitor %d/%d (\"%s\")\t[%d]\n",
          current_desktop_marker, current_monitor_marker, (unsigned int)win,
          geometry.x, geometry.y, geometry.width, geometry.height,
@@ -462,7 +461,6 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
   geometry.y      += top;
   geometry.width  -= (left + right);
   geometry.height -= (top + bottom);
-
   move_resize_window(display, window, geometry);
 }
 

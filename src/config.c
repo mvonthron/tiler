@@ -161,9 +161,9 @@ parse_line(char *token, char *value)
    * token parsing
    */
   for(i=0; i<MOVESLEN; i++)
-    if( STREQ(token, bindings[i].name) )
+    if( STREQ(token, bindings_old[i].name) )
       move = (Move_t) i;
-  
+
   if(move == MOVESLEN){
     D(("Unknown token \"%s\"", token));
     return;
@@ -245,7 +245,8 @@ get_monitors_config(Display *display, Window root)
 void
 compute_geometries(Display *display, Window root)
 {
-  extern Binding_t bindings[MOVESLEN];
+    /* @todo move to geometries.c */
+    TODO(("remove"));
 
   /* get monitors info */
   get_monitors_config(display, root);
@@ -270,56 +271,56 @@ compute_geometries(Display *display, Window root)
   top->y      = 0 /*y*/;
   top->width  = w;
   top->height = (int)(h/2);
-  bindings[TOP].data = top;
+  bindings_old[TOP].data = top;
   
   /* topright */
   topright->x      = (int)(w/2);
   topright->y      = 0 /*y*/;
   topright->width  = (int)(w/2);
   topright->height = (int)(h/2);
-  bindings[TOPRIGHT].data = topright;
+  bindings_old[TOPRIGHT].data = topright;
   
   /* topleft */
   topleft->x      = 0 /*x*/;
   topleft->y      = 0 /*y*/;
   topleft->width  = (int)(w/2);
   topleft->height = (int)(h/2);
-  bindings[TOPLEFT].data = topleft;
+  bindings_old[TOPLEFT].data = topleft;
 
   /* bottom */
   bottom->x      = 0;
   bottom->y      = (int)(h/2)/*+y*/;
   bottom->width  = w;
   bottom->height = (int)(h/2);
-  bindings[BOTTOM].data = bottom;
+  bindings_old[BOTTOM].data = bottom;
   
   /* bottomright */
   bottomright->x      = (int)(w/2);
   bottomright->y      = (int)(h/2)/*+y*/;
   bottomright->width  = (int)(w/2);
   bottomright->height = (int)(h/2);
-  bindings[BOTTOMRIGHT].data = bottomright;
+  bindings_old[BOTTOMRIGHT].data = bottomright;
   
   /* bottomleft */
   bottomleft->x      = x;
   bottomleft->y      = (int)(h/2)/*+y*/;
   bottomleft->width  = (int)(w/2);
   bottomleft->height = (int)(h/2);
-  bindings[BOTTOMLEFT].data = bottomleft;
+  bindings_old[BOTTOMLEFT].data = bottomleft;
   
   /* right */
   right->x      = (int)(w/2);
   right->y      = 0;
   right->width  = (int)(w/2);
   right->height = h;
-  bindings[RIGHT].data = right;
+  bindings_old[RIGHT].data = right;
   
   /* left */
   left->x      = 0;
   left->y      = 0;
   left->width  = (int)(w/2);
   left->height = h;
-  bindings[LEFT].data = left;
+  bindings_old[LEFT].data = left;
 }
 
 /**
@@ -361,20 +362,20 @@ print_geometries()
     printf("  - "COLOR_BOLD"work area"COLOR_CLEAR"        (%d, %d), (%d, %d)\n", x, y, w, h);
 
     for(i=0; i<MOVESLEN; i++){
-        if(bindings[i].data == NULL){
+        if(bindings_old[i].data == NULL){
             sprintf(arg_buffer, "(null)");
-        }else if(bindings[i].data != NULL && bindings[i].callback == move){
-            Geometry_t *data = (Geometry_t *) bindings[i].data;
+        }else if(bindings_old[i].data != NULL && bindings_old[i].callback == move){
+            Geometry_t *data = (Geometry_t *) bindings_old[i].data;
             sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->x, data->y, data->width, data->height);
         }
 
-        if(bindings[i].keysym == XK_VoidSymbol){
+        if(bindings_old[i].keysym == XK_VoidSymbol){
             sprintf(key_buffer, "(null)");
         }else{
-            sprintf(key_buffer, "[%s]", XKeysymToString(bindings[i].keysym));
+            sprintf(key_buffer, "[%s]", XKeysymToString(bindings_old[i].keysym));
         }
 
-        printf("  - %-16s %-40s %s\n", bindings[i].name, arg_buffer, key_buffer);
+        printf("  - %-16s %-40s %s\n", bindings_old[i].name, arg_buffer, key_buffer);
     }
 }
 

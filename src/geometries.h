@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+ * Copyright (c) 2011 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,32 +14,17 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef KEYBINDINGS_H
-#define KEYBINDINGS_H
+#ifndef GEOMETRIES_H
+#define GEOMETRIES_H
 
-#include <X11/keysym.h>
+
+#include <X11/Xlib.h>
 #include "tiler.h"
-#include "callbacks.h"
+#include "utils.h"
+#include "keybindings.h"
 
-typedef struct {
-    char *name;
-    KeySym keysym;   /* default XK_VoidSymbol => NULL */
-    void (*callback)(void*);
-    void *data;
-} Binding_t;
-
-extern Binding_t bindings_old[MOVESLEN];
-extern Binding_t **bindings;
-
-unsigned int modifiers;
-
-void setup_bindings_data();
-void clear_bindings();
-void add_binding(Move_t, KeySym);
-void add_modifier(unsigned int);
-
-void dispatch(XEvent *);
-void print_key_event(const XKeyEvent, const bool);
+void get_usable_area(int);
+void compute_geometries_for_monitor(int, Binding_t *);
 
 
-#endif /* KEYBINDINGS_H */
+#endif /* GEOMETRIES_H */

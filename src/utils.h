@@ -42,7 +42,13 @@
     printf("\n");                                                       \
     cleanup();                                                          \
     exit(1);                                                            \
-  } while (0)
+  } while (0);
+
+#define TODO(msg) do {                                                     \
+    printf("%s[%s:%s(%d)] TODO: %s ",COLOR_BLUE, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
+    printf msg;                                                         \
+    printf("\n");                                                       \
+    } while(0);
 
 typedef int bool;
 #define false (0)
@@ -51,6 +57,6 @@ typedef int bool;
 #define FREE(ptr) if(ptr != NULL) {     \
     free(ptr);                          \
     ptr = NULL;                         \
-} while(0)
+} while(0);
 
 #endif /* UTILS_H */
