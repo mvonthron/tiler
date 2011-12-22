@@ -27,7 +27,6 @@
 #include "xactions.h"
 #include "config.h"
 
-
 /**
  * property getters
  */
@@ -131,7 +130,7 @@ __compiz_window_in_active_desktop(Window window)
  * used for some compiz system windows
  */
 static bool 
-is_sticky(Window window)
+is_regular_window(Window window)
 {
   Atom actual_type;
   int i, actual_format;
@@ -152,10 +151,10 @@ is_sticky(Window window)
        
     for(i=0; i<nitems; i++)
       if(data[i] == atom_sticky)
-        return true;
+        return false;
   }
   
-  return false;
+  return true;
 }
 
 
@@ -215,7 +214,7 @@ window_in_active_desktop(Display *display, Window window)
  * @return actual list size
  */
 int
-list_windows(Display* display, Window root, Window **window_list, bool only_curr_desktop)
+list_windows(Display* display, Window root, Window **window_list, uint options)
 {
   Atom actual_type, atom;
   int actual_format, /*curr_desktop=42,*/ status=-1, i=0, actual_size=0;
@@ -239,12 +238,21 @@ list_windows(Display* display, Window root, Window **window_list, bool only_curr
 
     *window_list = (Window *) malloc(nitems * sizeof(Window));
 
+    int active_desktop = get_desktop(display, get_active_window()); // @todo refactor
+    int active_monitor = get_monitor_for_window(get_active_window());
+
     for(i=0; i<nitems; i++){
       w = *((Window *)data+i);
       
-      if( (!only_curr_desktop || window_in_active_desktop(display, w))
-          && !is_sticky(w) /* pass as an option ? */){
-        *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
+//      if( (!only_curr_desktop || active_desktop == get_desktop(display, w))
+//          && (!only_curr_monitor || active_monitor == get_monitor_for_window(w))
+//          && is_regular_window(w) /* pass as an option ? */){
+
+          if((options & LIST_ALL)
+             || ((options & LIST_CURR_DESKTOP) && active_desktop == get_desktop(display, w))
+             || ((options & LIST_CURR_MONITOR) && active_monitor == get_monitor_for_window(w))
+             || ((options & LIST_REGULAR)      && is_regular_window(w)) ){
+              *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
       }
     }
   }
@@ -306,7 +314,7 @@ print_window(Display *display, Window win)
     printf("%c%c Window 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d monitor %d/%d (\"%s\")\t[%d]\n",
          current_desktop_marker, current_monitor_marker, (unsigned int)win,
          geometry.x, geometry.y, geometry.width, geometry.height,
-         get_desktop(display, win)+1, 4, monitor_id, settings.nb_monitors, name, nitems);
+         get_desktop(display, win)+1, 4, monitor_id+1, settings.nb_monitors, name, nitems);
 }
 
 void

@@ -50,6 +50,7 @@ struct settings_t settings = {
   false,            /* is_compiz */
   false,            /* force_run */
   0,                /* nb_monitors */
+  0,                /* nb_desktop */
   "",               /* conf filename */
   "/tmp/tiler.pid", /* pid filename */
 

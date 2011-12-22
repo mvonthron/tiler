@@ -33,6 +33,7 @@ extern struct settings_t {
   bool is_compiz;
   bool force_run;
   int nb_monitors;
+  int nb_desktops;
   char filename[128];
   char pidfile[128];
 } settings;

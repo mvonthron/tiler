@@ -29,13 +29,24 @@
 #include "tiler.h"
 
 
-
-
-
 void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 {
     if(monitor_id >= settings.nb_monitors || monitor_bindings == NULL)
         FATAL(("bad arguments"));
 
     D(("Computing data for monitor %d", monitor_id));
+
+    Geometry_t area;
+    get_usable_area(monitor_id, &area);
+
+
+}
+
+
+void get_usable_area(int monitor_id, Geometry_t *area)
+{
+    /* _NET_WORKAREA atom doesn't fit for multiple screen */
+
+
+
 }

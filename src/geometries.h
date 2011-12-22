@@ -23,7 +23,7 @@
 #include "utils.h"
 #include "keybindings.h"
 
-void get_usable_area(int);
+void get_usable_area(int, Geometry_t *);
 void compute_geometries_for_monitor(int, Binding_t *);
 
 

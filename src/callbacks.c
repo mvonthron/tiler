@@ -36,7 +36,7 @@ grid(void *data)
   Window *window_list=NULL;
   int size=-1;
   
-  size = list_windows(display, root, &window_list, true);
+  size = list_windows(display, root, &window_list, LIST_DEFAULT);
   D(("Nb windows on desktop : %d", size));
   
   if(window_list == NULL)
@@ -84,7 +84,7 @@ sidebyside(void *data)
   Window *window_list=NULL;
   int size=-1;
   
-  size = list_windows(display, root, &window_list, true);
+  size = list_windows(display, root, &window_list, LIST_DEFAULT);
   
   if(size < 2 || window_list == NULL)
     return;
@@ -127,7 +127,7 @@ listwindows(void *data)
     Window *window_list=NULL;
     int size=-1, i=0;
 
-    size = list_windows(display, root, &window_list, false);
+    size = list_windows(display, root, &window_list, LIST_ALL);
     D(("Nb windows on desktop : %d", size));
 
     if(window_list == NULL)
