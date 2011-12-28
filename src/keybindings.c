@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 
@@ -72,6 +73,10 @@ static const Binding_t bindings_reference[MOVESLEN] = {
   {"listwindows", XK_VoidSymbol, listwindows,  NULL},
 };
 
+/**
+ * real binding data array
+ * contains bindings_reference * nb_screens
+ */
 Binding_t **bindings = NULL;
 
 /**
@@ -101,13 +106,18 @@ void ungrab(const KeyCode code, const unsigned int mod)
 
 void add_binding(Move_t move, KeySym keysym)
 {
-  extern Display *display;
+  if(bindings == NULL)
+      FATAL(("bindings structure not initialized"));
+
+  int i;
   
   D(("binding \"%s\" to \"%s\"", 
-         bindings_old[move].name,
+         bindings_reference[move].name,
          XKeysymToString(keysym) ));
-  
-  bindings_old[move].keysym = keysym;
+
+  /* same key shortcut for all monitors */
+  for (i=0; i<settings.nb_monitors; i++)
+    bindings[i][move].keysym = keysym;
 
   /* set X listening event */
   grab(XKeysymToKeycode(display, keysym), modifiers);
@@ -194,18 +204,20 @@ void setup_bindings_data()
 
 void clear_bindings()
 {
-    int i=0;
+    int m=0, i=0;
 
-    for(i=0; i<MOVESLEN; i++){
-        if(XK_VoidSymbol != bindings_old[i].keysym){
-            ungrab(XKeysymToKeycode(display, bindings_old[i].keysym), modifiers);
-            ungrab(XKeysymToKeycode(display, bindings_old[i].keysym), modifiers | Mod2Mask);
-            bindings_old[i].keysym = XK_VoidSymbol;
-        }
+    for(m=0; m<settings.nb_monitors; m++){
+        for(i=0; i<MOVESLEN; i++){
+            if(XK_VoidSymbol != bindings[m][i].keysym){
+                ungrab(XKeysymToKeycode(display, bindings[m][i].keysym), modifiers);
+                ungrab(XKeysymToKeycode(display, bindings[m][i].keysym), modifiers | Mod2Mask);
+                bindings[m][i].keysym = XK_VoidSymbol;
+            }
 
-        if(bindings_old[i].data != NULL){
-            free(bindings_old[i].data);
-            bindings_old[i].data = NULL;
+            if(bindings[m][i].data != NULL){
+                free(bindings[m][i].data);
+                bindings[m][i].data = NULL;
+            }
         }
     }
 }
@@ -249,14 +261,16 @@ void dispatch(XEvent *event)
     XKeyEvent e = event->xkey;
     KeySym keysym = XKeycodeToKeysym(e.display, e.keycode, 0);
     
+    int monitor = get_window_monitor(get_active_window());
+
     if(settings.verbose){
         print_key_event(e, true);
     }
     
     for(i=0; i<MOVESLEN; i++){
-      if(keysym == bindings_old[i].keysym){
-        if(bindings_old[i].callback != NULL)
-          bindings_old[i].callback(bindings_old[i].data);
+      if(keysym == bindings[monitor][i].keysym){
+        if(bindings[monitor][i].callback != NULL)
+          bindings[monitor][i].callback(bindings[monitor][i].data);
       }
     }
   }

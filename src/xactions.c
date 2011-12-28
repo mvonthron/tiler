@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <assert.h>
 #include <string.h>
 
@@ -163,8 +164,9 @@ is_regular_window(Window window)
     Atom type = get_atom_property(window, "_NET_WM_WINDOW_TYPE");
     Atom atom_normal = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", 0);
     Atom atom_utility = XInternAtom(display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
+    Atom atom_dialog= XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", 0);
 
-    if(type == atom_normal || type == atom_utility)
+    if(type == atom_normal || type == atom_utility || type == atom_dialog)
         return true;
     else
         return false;
@@ -257,10 +259,6 @@ list_windows(Display* display, Window root, Window **window_list, uint options)
     for(i=0; i<nitems; i++){
       w = *((Window *)data+i);
       
-//      if( (!only_curr_desktop || active_desktop == get_desktop(display, w))
-//          && (!only_curr_monitor || active_monitor == get_monitor_for_window(w))
-//          && is_regular_window(w) /* pass as an option ? */){
-
           if((options & LIST_ALL)
              || ((options & LIST_CURR_DESKTOP) && active_desktop == get_window_desktop(display, w))
              || ((options & LIST_CURR_MONITOR) && active_monitor == get_window_monitor(w))

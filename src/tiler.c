@@ -100,13 +100,12 @@ main(int argc, char **argv)
       
     if(!settings.force_run)
       exit(1);
+  }else{
+    char pidline[32];
+    sprintf(pidline, "%d", getpid());
+    write(pidfile, pidline, strlen(pidline));
+    close(pidfile);
   }
-  
-  char pidline[32];
-  sprintf(pidline, "%d", getpid());
-  write(pidfile, pidline, strlen(pidline));
-  close(pidfile);
-
 
   display = XOpenDisplay(NULL);
   if (display == NULL) {
@@ -116,6 +115,10 @@ main(int argc, char **argv)
   
   root = XDefaultRootWindow(display);
   
+  compute_geometries(display, root);
+  setup_bindings_data();
+
+
   /* 
    * configuration parsing
    * keybinding setup 
@@ -123,9 +126,7 @@ main(int argc, char **argv)
   parse_conf_file(settings.filename);
   check_compiz_wm();
   
-  compute_geometries(display, root);
-  setup_bindings_data();
-  
+
   if(settings.verbose){
      print_config();
      print_geometries();

@@ -34,9 +34,10 @@ void
 grid(void *data)
 {
   Window *window_list=NULL;
-  int size=-1;
+  int size=-1, monitor=-1;
   
   size = list_windows(display, root, &window_list, LIST_DEFAULT);
+  monitor = get_window_monitor(get_active_window());
   D(("Nb windows on desktop : %d", size));
   
   if(window_list == NULL)
@@ -56,9 +57,9 @@ grid(void *data)
   
   /* two windows on desktop, youhou party time \o/ */
   if(size == 3){
-    Geometry_t left        = * (Geometry_t *) bindings_old[LEFT].data;
-    Geometry_t topright    = * (Geometry_t *) bindings_old[TOPRIGHT].data;
-    Geometry_t bottomright = * (Geometry_t *) bindings_old[BOTTOMRIGHT].data;
+    Geometry_t left        = * (Geometry_t *) bindings[monitor][LEFT].data;
+    Geometry_t topright    = * (Geometry_t *) bindings[monitor][TOPRIGHT].data;
+    Geometry_t bottomright = * (Geometry_t *) bindings[monitor][BOTTOMRIGHT].data;
     
     fill_geometry(display, window_list[size-1], left);
     fill_geometry(display, window_list[size-2], topright);
@@ -67,10 +68,10 @@ grid(void *data)
   }
   
   /* stop at 4 win on squared grid for now */
-  Geometry_t topleft     = * (Geometry_t *) bindings_old[TOPLEFT].data;
-  Geometry_t topright    = * (Geometry_t *) bindings_old[TOPRIGHT].data;
-  Geometry_t bottomleft  = * (Geometry_t *) bindings_old[BOTTOMLEFT].data;
-  Geometry_t bottomright = * (Geometry_t *) bindings_old[BOTTOMRIGHT].data;
+  Geometry_t topleft     = * (Geometry_t *) bindings[monitor][TOPLEFT].data;
+  Geometry_t topright    = * (Geometry_t *) bindings[monitor][TOPRIGHT].data;
+  Geometry_t bottomleft  = * (Geometry_t *) bindings[monitor][BOTTOMLEFT].data;
+  Geometry_t bottomright = * (Geometry_t *) bindings[monitor][BOTTOMRIGHT].data;
   
   fill_geometry(display, window_list[size-1], topleft);
   fill_geometry(display, window_list[size-2], topright);
@@ -82,15 +83,16 @@ void
 sidebyside(void *data)
 {
   Window *window_list=NULL;
-  int size=-1;
+  int size=-1, monitor=-1;
   
   size = list_windows(display, root, &window_list, LIST_DEFAULT);
-  
+  monitor = get_window_monitor(get_active_window());
+
   if(size < 2 || window_list == NULL)
     return;
   
-  Geometry_t left  = * (Geometry_t *) bindings_old[LEFT].data;
-  Geometry_t right = * (Geometry_t *) bindings_old[RIGHT].data;
+  Geometry_t left  = * (Geometry_t *) bindings[monitor][LEFT].data;
+  Geometry_t right = * (Geometry_t *) bindings[monitor][RIGHT].data;
   
   fill_geometry(display, window_list[size-1], left);
   fill_geometry(display, window_list[size-2], right);

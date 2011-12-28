@@ -23,6 +23,7 @@
 struct settings_monitor_t {
     int id;
     Geometry_t infos;
+    Geometry_t workarea;
     char *name;
 };
 

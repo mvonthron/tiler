@@ -3,7 +3,7 @@
 #
 
 CC = gcc
-CFLAGS = -Wall -DDEBUG
+CFLAGS = -Wall #-DDEBUG
 LFLAGS = -lX11 -lm -lXinerama
 DEBUG = -g #-pg
 BIN = tiler

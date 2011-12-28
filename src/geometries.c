@@ -38,8 +38,7 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 
     D(("Computing data for monitor %d", monitor_id));
 
-    Geometry_t area;
-    get_usable_area(monitor_id, &area);
+    get_usable_area(monitor_id, &(settings.monitors[monitor_id].workarea));
 
     Binding_t *bind = bindings[monitor_id];
 
@@ -55,61 +54,64 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
     Geometry_t *left  = (Geometry_t *)malloc(sizeof(Geometry_t));
 
     /* available space */
-    int x = area.x, y=area.y, w=area.width, h=area.height;
+    int x = settings.monitors[monitor_id].workarea.x,
+        y = settings.monitors[monitor_id].workarea.y,
+        w = settings.monitors[monitor_id].workarea.width,
+        h = settings.monitors[monitor_id].workarea.height;
 
     /* top */
-    top->x      = 0 /*x*/;
-    top->y      = 0 /*y*/;
+    top->x      = x;
+    top->y      = y;
     top->width  = w;
-    top->height = (int)(h/2);
+    top->height = (h/2);
     bind[TOP].data = top;
 
     /* topright */
-    topright->x      = (int)(w/2);
-    topright->y      = 0 /*y*/;
-    topright->width  = (int)(w/2);
-    topright->height = (int)(h/2);
+    topright->x      = x+(w/2);
+    topright->y      = y;
+    topright->width  = (w/2);
+    topright->height = (h/2);
     bind[TOPRIGHT].data = topright;
 
     /* topleft */
-    topleft->x      = 0 /*x*/;
-    topleft->y      = 0 /*y*/;
-    topleft->width  = (int)(w/2);
-    topleft->height = (int)(h/2);
+    topleft->x      = x;
+    topleft->y      = y;
+    topleft->width  = (w/2);
+    topleft->height = (h/2);
     bind[TOPLEFT].data = topleft;
 
     /* bottom */
-    bottom->x      = 0;
-    bottom->y      = (int)(h/2)/*+y*/;
+    bottom->x      = x;
+    bottom->y      = y+(h/2);
     bottom->width  = w;
-    bottom->height = (int)(h/2);
+    bottom->height = (h/2);
     bind[BOTTOM].data = bottom;
 
     /* bottomright */
-    bottomright->x      = (int)(w/2);
-    bottomright->y      = (int)(h/2)/*+y*/;
-    bottomright->width  = (int)(w/2);
-    bottomright->height = (int)(h/2);
+    bottomright->x      = x+(w/2);
+    bottomright->y      = y+(h/2);
+    bottomright->width  = (w/2);
+    bottomright->height = (h/2);
     bind[BOTTOMRIGHT].data = bottomright;
 
     /* bottomleft */
     bottomleft->x      = x;
-    bottomleft->y      = (int)(h/2)/*+y*/;
-    bottomleft->width  = (int)(w/2);
-    bottomleft->height = (int)(h/2);
+    bottomleft->y      = y+(h/2);
+    bottomleft->width  = (w/2);
+    bottomleft->height = (h/2);
     bind[BOTTOMLEFT].data = bottomleft;
 
     /* right */
-    right->x      = (int)(w/2);
-    right->y      = 0;
-    right->width  = (int)(w/2);
+    right->x      = x+(w/2);
+    right->y      = y;
+    right->width  = (w/2);
     right->height = h;
     bind[RIGHT].data = right;
 
     /* left */
-    left->x      = 0;
-    left->y      = 0;
-    left->width  = (int)(w/2);
+    left->x      = x;
+    left->y      = y;
+    left->width  = (w/2);
     left->height = h;
     bind[LEFT].data = left;
 

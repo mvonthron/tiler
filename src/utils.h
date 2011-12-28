@@ -16,7 +16,7 @@
 
 #ifndef UTILS_H
 #define UTILS_H
-
+#include <stdbool.h>
 
 #define COLOR_GREEN   "\033[92m"
 #define COLOR_RED     "\033[91m"
@@ -30,15 +30,15 @@
 
 #define STREQ(str1, str2) (strcmp((str1), (str2)) == 0)
 
-#ifdef DEBUG
-#define D(msg) do {                                                     \
+//#ifdef DEBUG
+#define D(msg) if(settings.verbose) {                                                     \
     printf("%s[%s:%s(%d)]%s ",COLOR_YELLOW, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
     printf msg;                                                         \
     printf("\n");                                                       \
-  } while(0);
-#else
-#define D(msg)
-#endif
+  }
+//#else
+//#define D(msg)
+//#endif
 
 #define FATAL(msg) do {                                                     \
     printf("%s[%s:%s(%d)]%s ",COLOR_RED, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
@@ -53,10 +53,6 @@
     printf msg;                                                         \
     printf("\n");                                                       \
     } while(0);
-
-typedef int bool;
-#define false (0)
-#define true (1)
 
 #define FREE(ptr) if(ptr != NULL) {     \
     free(ptr);                          \
