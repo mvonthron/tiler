@@ -27,26 +27,29 @@
 #define LIST_CURR_DESKTOP   (0x01 << 1) // only windows on current desktop
 #define LIST_CURR_MONITOR   (0x01 << 2) // only windows on current monitor
 #define LIST_REGULAR        (0x01 << 3) // only non-dock, non-system... windows
+#define LIST_SYSTEM         (0x01 << 4) // !LIST_REGULAR
 #define LIST_DEFAULT        LIST_REGULAR | LIST_CURR_MONITOR | LIST_CURR_DESKTOP
 
 
 
 Window get_active_window();
-int get_desktop(Display *, Window);
 int get_active_desktop();
 bool window_in_active_desktop(Display *, Window);
 int list_windows(Display*, Window, Window **, uint);
-bool window_is_maximized(Display *, Window);
+
 void unmaximize_window(Display *, Window);
 void maximize_window(Display *, Window);
 
 int get_nb_desktop(Display *);
 int get_nb_screens(Display *);
 void get_workarea(Display *, Window, int *, int *, int *, int *);
-int get_monitor_for_window(const Window);
 
+int  get_window_monitor(const Window);
+int  get_window_desktop(Display *, Window);
 void get_window_geometry(Display *, Window, Geometry_t *);
 void get_window_frame_extent(Display *, Window, int *, int *, int *, int *);
+bool is_window_maximized(Display *, Window);
+
 void print_window(Display *, Window);
 
 void send_xevent(Display *, Window, Atom, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long);
