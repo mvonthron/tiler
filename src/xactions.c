@@ -57,11 +57,11 @@ get_int_property(Display *display, Window window, char *property)
   return value;
 }
 
-static void
+static bool
 get_2int_property(Display *display, Window window, char *property, int *data0, int *data1)
 {
   Atom at, actual_type;
-  int actual_format, status;
+  int actual_format, status, ret=true;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   
@@ -78,6 +78,61 @@ get_2int_property(Display *display, Window window, char *property, int *data0, i
     *data0 = ((int *)data)[0];
     *data1 = ((int *)data)[1];
   }
+  else{
+      ret = false;
+  }
+
+  XFree(data);
+  return ret;
+}
+
+static bool
+get_4int_property(Display *display, Window window, char *property, int *data0, int *data1, int *data2, int *data3)
+{
+  Atom at, actual_type;
+  int actual_format, status, ret=true;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+
+
+  at = XInternAtom(display, property, 0);
+  status = XGetWindowProperty(display, window, at, 0, (~0L), 0,
+                              XA_CARDINAL, &actual_type, &actual_format,
+                              &nitems, &bytes_after, &data);
+  if(status >= Success
+     && nitems >= 4
+     && actual_type == XA_CARDINAL
+     && actual_format == 32){
+
+    *data0 = ((int *)data)[0];
+    *data1 = ((int *)data)[1];
+    *data2 = ((int *)data)[2];
+    *data3 = ((int *)data)[3];
+  }
+  else{
+      ret = false;
+  }
+
+  XFree(data);
+  return ret;
+}
+
+static int
+get_property(Display *display, Window window, char *property, void *data)
+{
+    Atom actual_type, atom;
+    int actual_format, status=-1;
+    unsigned long nitems, bytes_after;
+
+    atom = XInternAtom(display, property, 0);
+    status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                AnyPropertyType, &actual_type, &actual_format,
+                                &nitems, &bytes_after, (unsigned char **)&data);
+
+    if(status >= Success && nitems > 0)
+      return nitems;
+    else
+      return -1;
 }
 
 static Atom
@@ -151,6 +206,18 @@ __compiz_window_in_active_desktop(Window window)
   return true;
 }
 
+static void
+__compiz_get_window_adjustments(Window window, int *x, int *y, int *width, int *height)
+{
+    /* default values */
+    *x      =  -4; /* NOT taken into account so far! */
+    *y      =   0;
+    *width  =   5;
+    *height =   4;
+
+    get_4int_property(display, window, "_COMPIZ_WM_WINDOW_BLUR_DECOR", x, y, width, height);
+}
+
 /*
  */
 static bool 
@@ -181,8 +248,9 @@ Window
 get_active_window()
 {
   extern Display *display;
-  
+
   Atom atom = XInternAtom(display, "_NET_ACTIVE_WINDOW", 0);
+  unsigned char *data=NULL;
   Window root = XDefaultRootWindow(display);
   Window ret;
 
@@ -190,12 +258,11 @@ get_active_window()
   int actual_format;
   unsigned long nitems;
   unsigned long bytes_after;
-  unsigned char *data=NULL;
 
   int status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
                                   AnyPropertyType, &actual_type, &actual_format,
                                   &nitems, &bytes_after, &data);
-  
+
   if(status >= Success && nitems > 0)
     ret = *((Window*)data);
   else{
@@ -429,46 +496,46 @@ get_window_frame_extent(Display *display, Window window,
     *right  = 0;
     *top    = 0;
     *bottom = 0;
-  }
+}
 
   XFree(data);
 }
 
 /**
- * @todo factoriser get_property_4int
+ *
  */
 void
 get_workarea(Display *display, Window window, 
              int *x, int *y, int *width, int *height) /* returning values */
 {
-  Atom actual_type;
-  int actual_format;
-  unsigned long nitems;
-  unsigned long bytes_after;
-  unsigned char *data;
-  
-  Atom atom = XInternAtom(display, "_NET_WORKAREA", 0);
-  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
-                                  XA_CARDINAL, &actual_type, &actual_format,
-                                  &nitems, &bytes_after, &data);
-  if(status >= Success 
-     && nitems >= 4
-     && actual_type == XA_CARDINAL
-     && actual_format == 32){
+    Atom actual_type;
+    int actual_format;
+    unsigned long nitems;
+    unsigned long bytes_after;
+    unsigned char *data;
 
-    *x      = ((int*)data)[0];
-    *y      = ((int*)data)[1];
-    *width  = ((int*)data)[2];
-    *height = ((int*)data)[3];
-  }else{
-    *x      = -1;
-    *y      = -1;
-    *width  = -1;
-    *height = -1;
-  }
+    Atom atom = XInternAtom(display, "_NET_WORKAREA", 0);
+    int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                    XA_CARDINAL, &actual_type, &actual_format,
+                                    &nitems, &bytes_after, &data);
+    if(status >= Success
+       && nitems >= 4
+       && actual_type == XA_CARDINAL
+       && actual_format == 32){
 
-  XFree(data);
-  return;
+      *x = ((int*)data)[0];
+      *y = ((int*)data)[1];
+      *width = ((int*)data)[2];
+      *height = ((int*)data)[3];
+    }else{
+      *x = -1;
+      *y = -1;
+      *width = -1;
+      *height = -1;
+    }
+
+    XFree(data);
+    return;
 }
 
 /**
@@ -480,15 +547,31 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
 {
   int right, left, top, bottom;
   
-  /* get _NET_FRAME_EXTENTS */
-  get_window_frame_extent(display, window, &left, &right, &top, &bottom);  
-  
-  /*geometry.x      += left;*/
-  geometry.y      += top;
-  geometry.width  -= (left + right);
-  geometry.height -= (top + bottom);
-  move_resize_window(display, window, geometry);
-}
+    D(("Adjusting: (%d, %d), (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
+
+    /* get _NET_FRAME_EXTENTS */
+    get_window_frame_extent(display, window, &left, &right, &top, &bottom);
+
+    geometry.x      += left;
+    geometry.y      += top;
+    geometry.width  -= (left + right);
+    geometry.height -= (top + bottom);
+
+    D(("\t=> (%d, %d), (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
+
+    if(settings.is_compiz){
+        int x, y, width, height;
+        __compiz_get_window_adjustments(window, &x, &y, &width, &height);
+        geometry.x      += x;
+        geometry.y      += y;
+        geometry.width  += width;
+        geometry.height += height;
+
+        D(("\t=> (%d, %d), (%d, %d) [compiz]", geometry.x, geometry.y, geometry.width, geometry.height));
+    }
+
+    move_resize_window(display, window, geometry);
+  }
 
 
 int
