@@ -53,6 +53,9 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
     Geometry_t *right = (Geometry_t *)malloc(sizeof(Geometry_t));
     Geometry_t *left  = (Geometry_t *)malloc(sizeof(Geometry_t));
 
+    Geometry_t *rightscreen = (Geometry_t *)malloc(sizeof(Geometry_t));
+    Geometry_t *leftscreen  = (Geometry_t *)malloc(sizeof(Geometry_t));
+
     /* available space */
     int x = settings.monitors[monitor_id].workarea.x,
         y = settings.monitors[monitor_id].workarea.y,
@@ -115,6 +118,20 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
     left->height = h;
     bind[LEFT].data = left;
 
+    /** screen change data */
+    if(settings.nb_monitors > 0){
+        int i;
+        for(i=0; i<settings.nb_monitors; i++){
+            if(i == monitor_id)
+                continue;
+
+            if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == LEFTOF){
+                bind[LEFTSCREEN].data = &(settings.monitors[i].workarea);
+            }else if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == RIGHTOF){
+                bind[RIGHTSCREEN].data = &(settings.monitors[i].workarea);
+            }
+        }
+    }
 }
 
 
@@ -157,3 +174,22 @@ void get_usable_area(int monitor_id, Geometry_t *area)
 
     free(window_list);
 }
+
+Position_t
+get_relative_position(Geometry_t base, Geometry_t target)
+{
+    Position_t ret;
+    if(base.x >= target.x + target.width)
+        ret = LEFTOF;
+    else if(base.x + base.width <= target.x)
+        ret = RIGHTOF;
+    else if(base.y >= target.y + target.height)
+        ret = BOTTOMOF;
+    else if(base.y + base.height <= target.y)
+        ret = TOPOF;
+    else
+        ret = UNKNOWNPOS;
+
+    return ret;
+}
+

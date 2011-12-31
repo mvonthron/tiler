@@ -106,7 +106,7 @@ move(void *data)
     return;
   }
 
-  Geometry_t geometry = * (Geometry_t *) data;  
+  Geometry_t geometry = * (Geometry_t *) data;
   fill_geometry(display, get_active_window(display), geometry);
 }
 
@@ -117,9 +117,38 @@ maximize(void *data)
 }
 
 void
-changescreen(void *data)
+changescreen_left(void *data)
 {
-  D((COLOR_BOLD "*** Change Screen ***" COLOR_CLEAR " (not implemented)"));
+   if(data == NULL)
+       return;
+
+    D((COLOR_BOLD "*** Change Screen LEFT ***" COLOR_CLEAR " (not implemented)"));
+    Geometry_t monitor = * (Geometry_t *) data;
+    Window win = get_active_window(display);
+    Geometry_t current_position, new_position;
+    get_window_geometry(display, win, &current_position);
+    new_position = current_position;
+
+    /* simple version without size checks */
+    new_position.x = current_position.x - (monitor.width);
+    fill_geometry(display, win, new_position);
+}
+
+void
+changescreen_right(void *data)
+{
+    if(data == NULL)
+        return;
+
+    D((COLOR_BOLD "*** Change Screen RIGHT ***" COLOR_CLEAR " (not implemented)"));
+    Geometry_t monitor = * (Geometry_t *) data;
+    Window win = get_active_window(display);
+    Geometry_t current_position, new_position;
+    get_window_geometry(display, win, &current_position);
+    new_position = current_position;
+
+    new_position.x = current_position.x + (monitor.x);
+    fill_geometry(display, win, new_position);
 }
 
 /** debug & info callbacks */

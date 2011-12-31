@@ -23,8 +23,16 @@
 #include "utils.h"
 #include "keybindings.h"
 
+typedef enum {
+    RIGHTOF,
+    LEFTOF,
+    TOPOF,
+    BOTTOMOF,
+    UNKNOWNPOS
+} Position_t;
+
 void get_usable_area(int, Geometry_t *);
 void compute_geometries_for_monitor(int, Binding_t *);
-
+Position_t get_relative_position(Geometry_t, Geometry_t);
 
 #endif /* GEOMETRIES_H */

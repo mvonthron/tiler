@@ -45,10 +45,10 @@ void sidebyside(void *);
 
 /**
  * change screen
- * @param [in] data unused
- * @todo unimplemented
+ * @param [in] data geometry_t workarea of target monitor
  */
-void changescreen(void *);
+void changescreen_left(void *);
+void changescreen_right(void *);
 
 /**
  * maximize active window
