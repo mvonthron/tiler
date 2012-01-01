@@ -20,7 +20,7 @@
 #include "tiler.h"
 #include "utils.h"
 
-struct settings_monitor_t {
+struct Monitor_t {
     int id;
     Geometry_t infos;
     Geometry_t workarea;
@@ -28,7 +28,7 @@ struct settings_monitor_t {
 };
 
 extern struct settings_t {
-  struct settings_monitor_t *monitors;
+  struct Monitor_t *monitors;
   bool verbose;
   bool foreground;
   bool is_compiz;
@@ -44,11 +44,9 @@ void parse_conf_file(char *);
 void usage();
 void version();
 
-void compute_geometries(Display *, Window);
-int get_monitors_config(Display *, Window);
+int get_monitors_config();
 void free_config();
 
 void print_config();
-void print_geometries();
 
 #endif /* CONFIG_H */

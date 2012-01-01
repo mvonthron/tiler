@@ -28,6 +28,7 @@
 #include "utils.h"
 #include "config.h"
 #include "keybindings.h"
+#include "geometries.h"
 #include "xactions.h"
 
 /* extern display & root */
@@ -114,18 +115,19 @@ main(int argc, char **argv)
   }
   
   root = XDefaultRootWindow(display);
-  
-  compute_geometries(display, root);
-  setup_bindings_data();
 
+  check_compiz_wm();
+
+  /* get monitors info */
+  get_monitors_config(display, root);
+
+  setup_bindings_data();
 
   /* 
    * configuration parsing
    * keybinding setup 
    */
   parse_conf_file(settings.filename);
-  check_compiz_wm();
-  
 
   if(settings.verbose){
      print_config();

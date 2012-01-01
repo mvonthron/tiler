@@ -193,3 +193,39 @@ get_relative_position(Geometry_t base, Geometry_t target)
     return ret;
 }
 
+void
+print_geometries()
+{
+    int i=0, monitor_id=0;
+    char arg_buffer[64] = "\0";
+    char key_buffer[32] = "\0";
+
+    for(monitor_id=0; monitor_id<settings.nb_monitors; monitor_id++){
+        printf(COLOR_BOLD"Geometries (monitor %d):\n"COLOR_CLEAR, monitor_id);
+
+        /* screen size */
+        int x = settings.monitors[monitor_id].workarea.x,
+            y = settings.monitors[monitor_id].workarea.y,
+            w = settings.monitors[monitor_id].workarea.width,
+            h = settings.monitors[monitor_id].workarea.height;
+        printf("  - "COLOR_BOLD"work area"COLOR_CLEAR"        (%d, %d), (%d, %d)\n", x, y, w, h);
+
+        for(i=0; i<MOVESLEN; i++){
+            if(bindings[monitor_id][i].data == NULL){
+                sprintf(arg_buffer, "(null)");
+            }else if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move){
+                Geometry_t *data = (Geometry_t *) bindings[monitor_id][i].data;
+                sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->x, data->y, data->width, data->height);
+            }
+
+            if(bindings[monitor_id][i].keysym == XK_VoidSymbol){
+                sprintf(key_buffer, "(null)");
+            }else{
+                sprintf(key_buffer, "[%s]", XKeysymToString(bindings[monitor_id][i].keysym));
+            }
+
+            printf("  - %-16s %-40s %s\n", bindings[monitor_id][i].name, arg_buffer, key_buffer);
+        }
+    }
+}
+

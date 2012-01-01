@@ -55,7 +55,7 @@ grid(void *data)
     return;
   }
   
-  /* two windows on desktop, youhou party time \o/ */
+  /* three windows on desktop */
   if(size == 3){
     Geometry_t left        = * (Geometry_t *) bindings[monitor][LEFT].data;
     Geometry_t topright    = * (Geometry_t *) bindings[monitor][TOPRIGHT].data;
@@ -119,10 +119,10 @@ maximize(void *data)
 void
 changescreen(void *data)
 {
-   if(data == NULL)
-       return;
+    if(data == NULL)
+        return;
 
-   Geometry_t monitor = * (Geometry_t *) data;
+    Geometry_t monitor = * (Geometry_t *) data;
     Window win = get_active_window(display);
     Geometry_t current_position, new_position;
     get_window_relative_geometry(display, win, &current_position);

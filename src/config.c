@@ -31,6 +31,7 @@
 #include "xactions.h"
 #include "keybindings.h"
 #include "config.h"
+#include "geometries.h"
 
 
 static const char *optstring = "hvfFc:V";
@@ -83,7 +84,7 @@ usage()
 void
 version()
 {
-  printf("tiler v0.1a \t(built "__DATE__")\n");
+  printf("tiler v"TILER_VERSION_STR"a \t(built "__DATE__")\n");
   
   exit(0);
 }
@@ -213,7 +214,7 @@ parse_conf_file(char *filename)
 }
 
 int
-get_monitors_config(Display *display, Window root)
+get_monitors_config()
 {
     if(!XineramaIsActive(display)){
         D(("Xinerama disabled"));
@@ -225,7 +226,7 @@ get_monitors_config(Display *display, Window root)
     XineramaScreenInfo *infos = XineramaQueryScreens(display, &(settings.nb_monitors));
 
     D(("Xinerama nb screens: %d", settings.nb_monitors));
-    settings.monitors = malloc(settings.nb_monitors * sizeof(struct settings_monitor_t));
+    settings.monitors = malloc(settings.nb_monitors * sizeof(struct Monitor_t));
 
     for(i=0; i< settings.nb_monitors; i++){
         settings.monitors[i].id = infos[i].screen_number;
@@ -246,87 +247,6 @@ get_monitors_config(Display *display, Window root)
 
     XFree(infos);
     return settings.nb_monitors;
-}
-
-void
-compute_geometries(Display *display, Window root)
-{
-    /* @todo move to geometries.c */
-    TODO(("remove"));
-
-  /* get monitors info */
-  get_monitors_config(display, root);
-
-  Geometry_t *top      = (Geometry_t *)malloc(sizeof(Geometry_t));
-  Geometry_t *topright = (Geometry_t *)malloc(sizeof(Geometry_t));
-  Geometry_t *topleft  = (Geometry_t *)malloc(sizeof(Geometry_t));
-  
-  Geometry_t *bottom      = (Geometry_t *)malloc(sizeof(Geometry_t));
-  Geometry_t *bottomright = (Geometry_t *)malloc(sizeof(Geometry_t));
-  Geometry_t *bottomleft  = (Geometry_t *)malloc(sizeof(Geometry_t));
-  
-  Geometry_t *right = (Geometry_t *)malloc(sizeof(Geometry_t));
-  Geometry_t *left  = (Geometry_t *)malloc(sizeof(Geometry_t));
-
-  /* available space */
-  int x, y, w, h;
-  get_workarea(display, root, &x, &y, &w, &h);
-
-  /* top */
-  top->x      = 0 /*x*/;
-  top->y      = 0 /*y*/;
-  top->width  = w;
-  top->height = (int)(h/2);
-  bindings_old[TOP].data = top;
-  
-  /* topright */
-  topright->x      = (int)(w/2);
-  topright->y      = 0 /*y*/;
-  topright->width  = (int)(w/2);
-  topright->height = (int)(h/2);
-  bindings_old[TOPRIGHT].data = topright;
-  
-  /* topleft */
-  topleft->x      = 0 /*x*/;
-  topleft->y      = 0 /*y*/;
-  topleft->width  = (int)(w/2);
-  topleft->height = (int)(h/2);
-  bindings_old[TOPLEFT].data = topleft;
-
-  /* bottom */
-  bottom->x      = 0;
-  bottom->y      = (int)(h/2)/*+y*/;
-  bottom->width  = w;
-  bottom->height = (int)(h/2);
-  bindings_old[BOTTOM].data = bottom;
-  
-  /* bottomright */
-  bottomright->x      = (int)(w/2);
-  bottomright->y      = (int)(h/2)/*+y*/;
-  bottomright->width  = (int)(w/2);
-  bottomright->height = (int)(h/2);
-  bindings_old[BOTTOMRIGHT].data = bottomright;
-  
-  /* bottomleft */
-  bottomleft->x      = x;
-  bottomleft->y      = (int)(h/2)/*+y*/;
-  bottomleft->width  = (int)(w/2);
-  bottomleft->height = (int)(h/2);
-  bindings_old[BOTTOMLEFT].data = bottomleft;
-  
-  /* right */
-  right->x      = (int)(w/2);
-  right->y      = 0;
-  right->width  = (int)(w/2);
-  right->height = h;
-  bindings_old[RIGHT].data = right;
-  
-  /* left */
-  left->x      = 0;
-  left->y      = 0;
-  left->width  = (int)(w/2);
-  left->height = h;
-  bindings_old[LEFT].data = left;
 }
 
 /**
@@ -354,43 +274,7 @@ print_config()
 
 }
 
-void
-print_geometries()
-{
-    int i=0, monitor_id=0;
-    char arg_buffer[64] = "\0";
-    char key_buffer[32] = "\0";
 
-    for(monitor_id=0; monitor_id<settings.nb_monitors; monitor_id++){
-        printf(COLOR_BOLD"Geometries (monitor %d):\n"COLOR_CLEAR, monitor_id);
-
-        /* screen size */
-    //    int x, y, w, h;
-    //    get_workarea(display, root, &x, &y, &w, &h);
-        int x = settings.monitors[monitor_id].workarea.x,
-            y = settings.monitors[monitor_id].workarea.y,
-            w = settings.monitors[monitor_id].workarea.width,
-            h = settings.monitors[monitor_id].workarea.height;
-        printf("  - "COLOR_BOLD"work area"COLOR_CLEAR"        (%d, %d), (%d, %d)\n", x, y, w, h);
-
-        for(i=0; i<MOVESLEN; i++){
-            if(bindings[monitor_id][i].data == NULL){
-                sprintf(arg_buffer, "(null)");
-            }else if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move){
-                Geometry_t *data = (Geometry_t *) bindings[monitor_id][i].data;
-                sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->x, data->y, data->width, data->height);
-            }
-
-            if(bindings[monitor_id][i].keysym == XK_VoidSymbol){
-                sprintf(key_buffer, "(null)");
-            }else{
-                sprintf(key_buffer, "[%s]", XKeysymToString(bindings[monitor_id][i].keysym));
-            }
-
-            printf("  - %-16s %-40s %s\n", bindings[monitor_id][i].name, arg_buffer, key_buffer);
-        }
-    }
-}
 
 void free_config()
 {
