@@ -234,10 +234,14 @@ get_monitors_config(Display *display, Window root)
         settings.monitors[i].infos.width  = infos[i].width;
         settings.monitors[i].infos.height = infos[i].height;
 
-        D(("\tscreen %d: (%d, %d), (%d, %d)",
+        get_usable_area(i, &(settings.monitors[i].workarea));
+
+        D(("\tscreen %d: (%d, %d), (%d, %d)\tWA: (%d, %d), (%d, %d)",
            settings.monitors[i].id,
            settings.monitors[i].infos.x, settings.monitors[i].infos.y,
-           settings.monitors[i].infos.width, settings.monitors[i].infos.height));
+           settings.monitors[i].infos.width, settings.monitors[i].infos.height,
+           settings.monitors[i].workarea.x, settings.monitors[i].workarea.y,
+           settings.monitors[i].workarea.width, settings.monitors[i].workarea.height));
     }
 
     XFree(infos);

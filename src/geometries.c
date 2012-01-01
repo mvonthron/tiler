@@ -38,8 +38,6 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 
     D(("Computing data for monitor %d", monitor_id));
 
-    get_usable_area(monitor_id, &(settings.monitors[monitor_id].workarea));
-
     Binding_t *bind = bindings[monitor_id];
 
     Geometry_t *top      = (Geometry_t *)malloc(sizeof(Geometry_t));
@@ -126,9 +124,11 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
                 continue;
 
             if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == LEFTOF){
-                bind[LEFTSCREEN].data = &(settings.monitors[i].workarea);
+                *leftscreen = settings.monitors[i].workarea;
+                bind[LEFTSCREEN].data = leftscreen;
             }else if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == RIGHTOF){
-                bind[RIGHTSCREEN].data = &(settings.monitors[i].workarea);
+                *rightscreen = settings.monitors[i].workarea;
+                bind[RIGHTSCREEN].data = rightscreen;
             }
         }
     }

@@ -467,6 +467,26 @@ get_window_geometry(Display *display, Window window, Geometry_t *geometry)
     }
 }
 
+void
+get_window_relative_geometry(Display *display, Window window, Geometry_t *geometry)
+{
+    XWindowAttributes attributes;
+    Window retwin;
+    int x, y;
+    int i = get_window_monitor(window);
+
+    XGetWindowAttributes(display, window, &attributes);
+
+    XTranslateCoordinates(display, window, root, 0, 0, &x, &y, &retwin);
+
+    if(geometry != NULL){
+        geometry->x = x - settings.monitors[i].workarea.x;
+        geometry->y = y - settings.monitors[i].workarea.y;
+        geometry->width  = attributes.width;
+        geometry->height = attributes.height;
+    }
+}
+
 
 void
 get_window_frame_extent(Display *display, Window window, 

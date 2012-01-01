@@ -47,6 +47,7 @@ void get_workarea(Display *, Window, int *, int *, int *, int *);
 int  get_window_monitor(const Window);
 int  get_window_desktop(Display *, Window);
 void get_window_geometry(Display *, Window, Geometry_t *);
+void get_window_relative_geometry(Display *, Window, Geometry_t *);
 void get_window_frame_extent(Display *, Window, int *, int *, int *, int *);
 bool is_window_maximized(Display *, Window);
 
