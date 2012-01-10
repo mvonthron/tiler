@@ -9,7 +9,7 @@ side-by-side two windows. This is especially useful for large screens.
 An admitted goal is to provide a comparable tool as the (very great) 
 WinSplit Revolution available on Windows.
 
-
+*Now with multi-screen support!*
 
 Examples
 --------
@@ -26,6 +26,7 @@ CTRL+ALT+Enter : organize the two most recently used windows side by side.
 
 CTRL+ALT+5 : organize the four most recently used windows on a grid.
 
+![Tiler + Openbox with dual screen](http://www.acadis.org/images/tiler/tiler-openbox-xinerama.small.png "Tiler + Openbox with dual screen")
   
 Requirements
 ------------
@@ -54,12 +55,12 @@ Things & stuff
 
 Please note that this program is in early development. 
 
-  * Only single screen display is supported at the moment (but this is one
-      of the top priorities)
   * Layout may sometimes look weird because of window constraints such as 
       "resizing step" (mostly in terminals) or minimum window size. Theses 
       may not allow to fit the desired window geometry and especially affects 
       small resolutions
+  * Windows shadowing causes trouble calculating the right geometries 
+      (yes Compiz, I'm looking at you)
       
 
 Source code, bug reports, ideas and more at http://www.github.com/gliss/tiler
@@ -74,4 +75,4 @@ This program and its documentation are released under the terms of the
 BSD license.
 
 --
-2010, Manuel Vonthron <manuel.vonthron@acadis.org>
+2012, Manuel Vonthron <manuel.vonthron@acadis.org>
