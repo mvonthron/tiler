@@ -158,8 +158,9 @@ void get_usable_area(int monitor_id, Geometry_t *area)
             continue;
 
         get_window_geometry(display, window_list[i], &geo);
-        if(geo.width == settings.monitors[monitor_id].infos.width
-                && geo.height == settings.monitors[monitor_id].infos.height)
+
+        if(geo.width >= settings.monitors[monitor_id].infos.width
+                && geo.height >= settings.monitors[monitor_id].infos.height)
             continue;
 
         if(geo.y < settings.monitors[monitor_id].infos.height/2){

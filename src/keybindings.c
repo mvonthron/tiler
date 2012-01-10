@@ -33,30 +33,10 @@
 unsigned int modifiers=0;
 
 /**
- * @todo remove
- */
-Binding_t bindings_old[MOVESLEN] = {
-  {"top",         XK_VoidSymbol, move,         NULL},
-  {"topright",    XK_VoidSymbol, move,         NULL},
-  {"topleft",     XK_VoidSymbol, move,         NULL},
-  {"bottom",      XK_VoidSymbol, move,         NULL},
-  {"bottomright", XK_VoidSymbol, move,         NULL},
-  {"bottomleft",  XK_VoidSymbol, move,         NULL},
-  {"right",       XK_VoidSymbol, move,         NULL},
-  {"left",        XK_VoidSymbol, move,         NULL},
-  {"leftscreen",  XK_VoidSymbol, changescreen, NULL},
-  {"rightscreen", XK_VoidSymbol, changescreen, NULL},
-  {"grid",        XK_VoidSymbol, grid,         NULL},
-  {"sidebyside",  XK_VoidSymbol, sidebyside,   NULL},
-  {"maximize",    XK_VoidSymbol, maximize,     NULL},
-  {"listwindows", XK_VoidSymbol, listwindows,  NULL},
-};
-
-/**
  * contains the reference table of bindings
  * we need one table like this one for each monitor
  */
-static const Binding_t bindings_reference[MOVESLEN] = {
+const Binding_t bindings_reference[MOVESLEN] = {
   {"top",         XK_VoidSymbol, move,         NULL},
   {"topright",    XK_VoidSymbol, move,         NULL},
   {"topleft",     XK_VoidSymbol, move,         NULL},
@@ -87,20 +67,12 @@ void grab(const KeyCode code, const unsigned int mod)
     /* set X listener */
     XGrabKey(display, code, mod,
              XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
-
-    /* also listen with the annoying NumLock added */
-    XGrabKey(display, code, modifiers | Mod2Mask,
-             XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
 }
 
 void ungrab(const KeyCode code, const unsigned int mod)
 {
     /* unset X listener */
     XUngrabKey(display, code, mod,
-               XDefaultRootWindow(display));
-
-    /* also listen with the annoying NumLock added */
-    XUngrabKey(display, code, modifiers | Mod2Mask,
                XDefaultRootWindow(display));
 }
 
@@ -176,8 +148,6 @@ void add_modifier(unsigned int modmask)
  */
 void setup_bindings_data()
 {
-    TODO(("replace compute_geometries"));
-
     if(settings.monitors == NULL){
         FATAL(("\"settings.monitors\" is not available. (did you call setup_config first ?)"));
     }
@@ -247,7 +217,7 @@ void print_key_event(const XKeyEvent event, const bool with_modifiers)
 
     strcat(keystring, XKeysymToString( XKeycodeToKeysym(event.display, event.keycode, 0) ));
 
-    D((COLOR_GREEN "received \"%s\" key press" COLOR_CLEAR, keystring));
+    printf(COLOR_GREEN "received \"%s\" key press" COLOR_CLEAR "\n", keystring);
 }
 
 /**
@@ -269,8 +239,11 @@ void dispatch(XEvent *event)
     
     for(i=0; i<MOVESLEN; i++){
       if(keysym == bindings[monitor][i].keysym){
-        if(bindings[monitor][i].callback != NULL)
+        if(bindings[monitor][i].callback != NULL){
           bindings[monitor][i].callback(bindings[monitor][i].data);
+          if(settings.verbose)
+              printf(" > calling \"%s\"\n", bindings[monitor][i].name);
+        }
       }
     }
   }

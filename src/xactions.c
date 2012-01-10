@@ -29,6 +29,8 @@
 #include "xactions.h"
 #include "config.h"
 
+#define MATCH(condition, state) (((condition) && (state)) || (!condition))
+
 /**
  * property getters
  */
@@ -327,10 +329,10 @@ list_windows(Display* display, Window root, Window **window_list, uint options)
       w = *((Window *)data+i);
       
           if((options & LIST_ALL)
-             || ((options & LIST_CURR_DESKTOP) && active_desktop == get_window_desktop(display, w))
-             || ((options & LIST_CURR_MONITOR) && active_monitor == get_window_monitor(w))
-             || ((options & LIST_REGULAR)      && is_regular_window(w))
-             || ((options & LIST_SYSTEM)       && !is_regular_window(w)) ){
+             || (MATCH((options & LIST_CURR_DESKTOP), active_desktop == get_window_desktop(display, w))
+                 && MATCH((options & LIST_CURR_MONITOR), active_monitor == get_window_monitor(w))
+                 && MATCH((options & LIST_REGULAR)     , is_regular_window(w))
+                 && MATCH((options & LIST_SYSTEM)      , !is_regular_window(w)) )){
               *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
       }
     }
@@ -565,7 +567,8 @@ get_workarea(Display *display, Window window,
 void 
 fill_geometry(Display *display, Window window, Geometry_t geometry)
 {
-  int right, left, top, bottom;
+#if 0
+    int right, left, top, bottom;
   
     D(("Adjusting: (%d, %d), (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
 
@@ -589,7 +592,7 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
 
         D(("\t=> (%d, %d), (%d, %d) [compiz]", geometry.x, geometry.y, geometry.width, geometry.height));
     }
-
+#endif
     move_resize_window(display, window, geometry);
   }
 

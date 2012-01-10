@@ -30,15 +30,15 @@
 
 #define STREQ(str1, str2) (strcmp((str1), (str2)) == 0)
 
-//#ifdef DEBUG
-#define D(msg) if(settings.verbose) {                                                     \
+#ifdef DEBUG
+#define D(msg) do {                                                     \
     printf("%s[%s:%s(%d)]%s ",COLOR_YELLOW, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
     printf msg;                                                         \
     printf("\n");                                                       \
-  }
-//#else
-//#define D(msg)
-//#endif
+  } while (0);
+#else
+#define D(msg)
+#endif
 
 #define FATAL(msg) do {                                                     \
     printf("%s[%s:%s(%d)]%s ",COLOR_RED, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \

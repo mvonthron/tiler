@@ -28,7 +28,7 @@ typedef struct {
     void *data;
 } Binding_t;
 
-extern Binding_t bindings_old[MOVESLEN];
+extern const Binding_t bindings_reference[MOVESLEN];
 extern Binding_t **bindings;
 
 unsigned int modifiers;
