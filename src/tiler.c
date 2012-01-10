@@ -28,6 +28,7 @@
 #include "utils.h"
 #include "config.h"
 #include "keybindings.h"
+#include "geometries.h"
 #include "xactions.h"
 
 /* extern display & root */
@@ -44,6 +45,8 @@ cleanup()
 
     // freeze on close display
     //XCloseDisplay(display);
+
+    free_config();
 }
 
 void
@@ -98,13 +101,12 @@ main(int argc, char **argv)
       
     if(!settings.force_run)
       exit(1);
+  }else{
+    char pidline[32];
+    sprintf(pidline, "%d", getpid());
+    write(pidfile, pidline, strlen(pidline));
+    close(pidfile);
   }
-  
-  char pidline[32];
-  sprintf(pidline, "%d", getpid());
-  write(pidfile, pidline, strlen(pidline));
-  close(pidfile);
-
 
   display = XOpenDisplay(NULL);
   if (display == NULL) {
@@ -113,16 +115,20 @@ main(int argc, char **argv)
   }
   
   root = XDefaultRootWindow(display);
-  
+
+  check_compiz_wm();
+
+  /* get monitors info */
+  get_monitors_config(display, root);
+
+  setup_bindings_data();
+
   /* 
-   * configuration parsing 
+   * configuration parsing
    * keybinding setup 
    */
   parse_conf_file(settings.filename);
-  check_compiz_wm();
-  
-  compute_geometries(display, root);
-  
+
   if(settings.verbose){
      print_config();
      print_geometries();

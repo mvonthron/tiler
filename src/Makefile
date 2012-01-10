@@ -3,11 +3,11 @@
 #
 
 CC = gcc
-CFLAGS = -Wall
-LFLAGS = -lX11 -lm
+CFLAGS = -Wall #-DDEBUG
+LFLAGS = -lX11 -lm -lXinerama
 DEBUG = -g #-pg
 BIN = tiler
-OBJS = keybindings.o config.o callbacks.o xactions.o utils.h tiler.o
+OBJS = geometries.o keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
 
 # installation
 BINDIR = /usr/bin

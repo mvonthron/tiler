@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+ * Copyright (c) 2011 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,39 +14,26 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef GEOMETRIES_H
+#define GEOMETRIES_H
 
+
+#include <X11/Xlib.h>
 #include "tiler.h"
 #include "utils.h"
+#include "keybindings.h"
 
-struct Monitor_t {
-    int id;
-    Geometry_t infos;
-    Geometry_t workarea;
-    char *name;
-};
+typedef enum {
+    RIGHTOF,
+    LEFTOF,
+    TOPOF,
+    BOTTOMOF,
+    UNKNOWNPOS
+} Position_t;
 
-extern struct settings_t {
-  struct Monitor_t *monitors;
-  bool verbose;
-  bool foreground;
-  bool is_compiz;
-  bool force_run;
-  int nb_monitors;
-  int nb_desktops;
-  char filename[128];
-  char pidfile[128];
-} settings;
+void get_usable_area(int, Geometry_t *);
+void compute_geometries_for_monitor(int, Binding_t *);
+void print_geometries();
+Position_t get_relative_position(Geometry_t, Geometry_t);
 
-void parse_opt(int, char **);
-void parse_conf_file(char *);
-void usage();
-void version();
-
-int get_monitors_config();
-void free_config();
-
-void print_config();
-
-#endif /* CONFIG_H */
+#endif /* GEOMETRIES_H */

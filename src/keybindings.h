@@ -28,12 +28,14 @@ typedef struct {
     void *data;
 } Binding_t;
 
+extern const Binding_t bindings_reference[MOVESLEN];
+extern Binding_t **bindings;
 
 unsigned int modifiers;
-extern Binding_t bindings[MOVESLEN];
 
-void add_binding(Move_t, KeySym);
+void setup_bindings_data();
 void clear_bindings();
+void add_binding(Move_t, KeySym);
 void add_modifier(unsigned int);
 
 void dispatch(XEvent *);

@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 #include "tiler.h"
+#include "config.h"
 #include "utils.h"
 #include "keybindings.h"
 #include "xactions.h"
@@ -33,10 +34,10 @@ void
 grid(void *data)
 {
   Window *window_list=NULL;
-  extern Binding_t bindings[MOVESLEN];
-  int size=-1;
+  int size=-1, monitor=-1;
   
-  size = list_windows(display, root, &window_list, true);
+  size = list_windows(display, root, &window_list, LIST_DEFAULT);
+  monitor = get_window_monitor(get_active_window());
   D(("Nb windows on desktop : %d", size));
   
   if(window_list == NULL)
@@ -54,11 +55,11 @@ grid(void *data)
     return;
   }
   
-  /* two windows on desktop, youhou party time \o/ */
+  /* three windows on desktop */
   if(size == 3){
-    Geometry_t left        = * (Geometry_t *) bindings[LEFT].data;
-    Geometry_t topright    = * (Geometry_t *) bindings[TOPRIGHT].data;
-    Geometry_t bottomright = * (Geometry_t *) bindings[BOTTOMRIGHT].data;
+    Geometry_t left        = * (Geometry_t *) bindings[monitor][LEFT].data;
+    Geometry_t topright    = * (Geometry_t *) bindings[monitor][TOPRIGHT].data;
+    Geometry_t bottomright = * (Geometry_t *) bindings[monitor][BOTTOMRIGHT].data;
     
     fill_geometry(display, window_list[size-1], left);
     fill_geometry(display, window_list[size-2], topright);
@@ -67,10 +68,10 @@ grid(void *data)
   }
   
   /* stop at 4 win on squared grid for now */
-  Geometry_t topleft     = * (Geometry_t *) bindings[TOPLEFT].data;
-  Geometry_t topright    = * (Geometry_t *) bindings[TOPRIGHT].data;
-  Geometry_t bottomleft  = * (Geometry_t *) bindings[BOTTOMLEFT].data;
-  Geometry_t bottomright = * (Geometry_t *) bindings[BOTTOMRIGHT].data;
+  Geometry_t topleft     = * (Geometry_t *) bindings[monitor][TOPLEFT].data;
+  Geometry_t topright    = * (Geometry_t *) bindings[monitor][TOPRIGHT].data;
+  Geometry_t bottomleft  = * (Geometry_t *) bindings[monitor][BOTTOMLEFT].data;
+  Geometry_t bottomright = * (Geometry_t *) bindings[monitor][BOTTOMRIGHT].data;
   
   fill_geometry(display, window_list[size-1], topleft);
   fill_geometry(display, window_list[size-2], topright);
@@ -82,16 +83,16 @@ void
 sidebyside(void *data)
 {
   Window *window_list=NULL;
-  extern Binding_t bindings[MOVESLEN];
-  int size=-1;
+  int size=-1, monitor=-1;
   
-  size = list_windows(display, root, &window_list, true);
-  
+  size = list_windows(display, root, &window_list, LIST_DEFAULT);
+  monitor = get_window_monitor(get_active_window());
+
   if(size < 2 || window_list == NULL)
     return;
   
-  Geometry_t left  = * (Geometry_t *) bindings[LEFT].data;
-  Geometry_t right = * (Geometry_t *) bindings[RIGHT].data;
+  Geometry_t left  = * (Geometry_t *) bindings[monitor][LEFT].data;
+  Geometry_t right = * (Geometry_t *) bindings[monitor][RIGHT].data;
   
   fill_geometry(display, window_list[size-1], left);
   fill_geometry(display, window_list[size-2], right);
@@ -105,7 +106,7 @@ move(void *data)
     return;
   }
 
-  Geometry_t geometry = * (Geometry_t *) data;  
+  Geometry_t geometry = * (Geometry_t *) data;
   fill_geometry(display, get_active_window(display), geometry);
 }
 
@@ -118,7 +119,20 @@ maximize(void *data)
 void
 changescreen(void *data)
 {
-  D((COLOR_BOLD "*** Change Screen ***" COLOR_CLEAR " (not implemented)"));
+    if(data == NULL)
+        return;
+
+    Geometry_t monitor = * (Geometry_t *) data;
+    Window win = get_active_window(display);
+    Geometry_t current_position, new_position;
+    get_window_relative_geometry(display, win, &current_position);
+    new_position = current_position;
+
+    /* simple version without size checks */
+    new_position.x = current_position.x + monitor.x;
+    new_position.y = current_position.y + monitor.y;
+    D(("(%d, %d) => (%d, %d) [%d, %d]", current_position.x, current_position.y, new_position.x, new_position.y, monitor.x, monitor.y))
+    fill_geometry(display, win, new_position);
 }
 
 /** debug & info callbacks */
@@ -126,12 +140,15 @@ void
 listwindows(void *data)
 {
     Window *window_list=NULL;
-    extern Binding_t bindings[MOVESLEN];
-    int size=-1;
+    int size=-1, i=0;
 
-    size = list_windows(display, root, &window_list, true);
+    size = list_windows(display, root, &window_list, LIST_ALL);
     D(("Nb windows on desktop : %d", size));
 
     if(window_list == NULL)
       return;
+
+    for(i=0; i< size; i++){
+        print_window(display, window_list[i]);
+    }
 }

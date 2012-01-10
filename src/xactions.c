@@ -16,7 +16,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <assert.h>
+#include <string.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -27,6 +29,7 @@
 #include "xactions.h"
 #include "config.h"
 
+#define MATCH(condition, state) (((condition) && (state)) || (!condition))
 
 /**
  * property getters
@@ -35,7 +38,7 @@ static int
 get_int_property(Display *display, Window window, char *property)
 {
   Atom at, actual_type;
-  int actual_format, status, value;
+  int actual_format, status, value=0;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   
@@ -44,7 +47,8 @@ get_int_property(Display *display, Window window, char *property)
   status = XGetWindowProperty(display, window, at, 0, (~0L), 0,
                               XA_CARDINAL, &actual_type, &actual_format,
                               &nitems, &bytes_after, &data);
-  if(status >= Success 
+
+  if(status >= Success
      && nitems >= 1
      && actual_type == XA_CARDINAL
      && actual_format == 32){
@@ -133,6 +137,29 @@ get_property(Display *display, Window window, char *property, void *data)
       return -1;
 }
 
+static Atom
+get_atom_property(Window window, char *property)
+{
+  Atom at, actual_type, value;
+  int actual_format, status;
+  unsigned long nitems, bytes_after;
+  unsigned char *data=NULL;
+
+  at = XInternAtom(display, property, 0);
+  status = XGetWindowProperty(display, window, at, 0, (~0L), 0,
+                              XA_ATOM, &actual_type, &actual_format,
+                              &nitems, &bytes_after, &data);
+
+  if(status >= Success
+     && nitems >= 1
+     && actual_type == XA_ATOM
+     && actual_format == 32){
+
+    value = *((int *)data);
+  }
+
+  return value;
+}
 
 /**
  * Compiz specific stuff
@@ -194,35 +221,24 @@ __compiz_get_window_adjustments(Window window, int *x, int *y, int *width, int *
 }
 
 /*
- * immovable window
- * used for some compiz system windows
  */
 static bool 
-is_sticky(Window window)
+is_regular_window(Window window)
 {
-  Atom actual_type, atom, atom_sticky;
-  int i, actual_format;
-  unsigned long nitems;
-  unsigned long bytes_after;
-  unsigned char *data;
-  
-  atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
-  atom = XInternAtom(display, "_NET_WM_STATE", 0);
+    Atom state = get_atom_property(window, "_NET_WM_STATE");
+    Atom atom_sticky = XInternAtom(display, "_NET_WM_STATE_STICKY", 0);
+    if(state == atom_sticky)
+      return false;
 
-  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
-                                  XA_ATOM, &actual_type, &actual_format,
-                                  &nitems, &bytes_after, &data);
-  if(status >= Success 
-     && nitems >= 1
-     && actual_type == XA_ATOM
-     && actual_format == 32){
-       
-    for(i=0; i<nitems; i++)
-      if(data[i] == atom_sticky)
+    Atom type = get_atom_property(window, "_NET_WM_WINDOW_TYPE");
+    Atom atom_normal = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", 0);
+    Atom atom_utility = XInternAtom(display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
+    Atom atom_dialog= XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", 0);
+
+    if(type == atom_normal || type == atom_utility || type == atom_dialog)
         return true;
-  }
-  
-  return false;
+    else
+        return false;
 }
 
 
@@ -255,9 +271,7 @@ get_active_window()
     ret = 0;
   }
 
-  //@todo fix
-  //int size = get_property(display, root, "_NET_ACTIVE_WINDOW", (void *) data);
-
+  XFree(data);
   return ret;
 }
 
@@ -267,7 +281,7 @@ get_active_desktop()
   if(settings.is_compiz)
     return __compiz_get_active_desktop();
   else
-    return get_desktop(display, get_active_window(display));
+    return get_window_desktop(display, get_active_window(display));
 }
 
 bool 
@@ -276,7 +290,7 @@ window_in_active_desktop(Display *display, Window window)
   if(settings.is_compiz)
     return __compiz_window_in_active_desktop(window);
   else{
-    return (get_desktop(display, window) == get_desktop(display, get_active_window(display)));
+    return (get_window_desktop(display, window) == get_window_desktop(display, get_active_window(display)));
   }
 }
 
@@ -284,17 +298,17 @@ window_in_active_desktop(Display *display, Window window)
  * @return actual list size
  */
 int
-list_windows(Display* display, Window root, Window **window_list, bool only_curr_desktop)
+list_windows(Display* display, Window root, Window **window_list, uint options)
 {
   Atom actual_type, atom;
-  int actual_format, curr_desktop=42, status=-1, i=0, actual_size=0;
+  int actual_format, /*curr_desktop=42,*/ status=-1, i=0, actual_size=0;
   unsigned long nitems, bytes_after;
   unsigned char *data=NULL;
   Window w;
   
   assert(*window_list == NULL);
   
-  curr_desktop = get_desktop(display, get_active_window(display));
+  //curr_desktop = get_desktop(display, get_active_window(display));
   
   atom = XInternAtom(display, "_NET_CLIENT_LIST_STACKING", 0);
   status = XGetWindowProperty(display, root, atom, 0, (~0L), 0,
@@ -308,12 +322,18 @@ list_windows(Display* display, Window root, Window **window_list, bool only_curr
 
     *window_list = (Window *) malloc(nitems * sizeof(Window));
 
+    int active_desktop = get_window_desktop(display, get_active_window()); // @todo refactor
+    int active_monitor = get_window_monitor(get_active_window());
+
     for(i=0; i<nitems; i++){
       w = *((Window *)data+i);
       
-      if( (!only_curr_desktop || window_in_active_desktop(display, w))
-          && !is_sticky(w) /* pass as an option ? */){
-        *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
+          if((options & LIST_ALL)
+             || (MATCH((options & LIST_CURR_DESKTOP), active_desktop == get_window_desktop(display, w))
+                 && MATCH((options & LIST_CURR_MONITOR), active_monitor == get_window_monitor(w))
+                 && MATCH((options & LIST_REGULAR)     , is_regular_window(w))
+                 && MATCH((options & LIST_SYSTEM)      , !is_regular_window(w)) )){
+              *((*window_list)+actual_size++) = *((Window *)data+i);          /* warning: ligne poilue ! */
       }
     }
   }
@@ -322,7 +342,7 @@ list_windows(Display* display, Window root, Window **window_list, bool only_curr
 }
 
 bool
-window_is_maximized(Display *display, Window window)
+is_window_maximized(Display *display, Window window)
 {
   return false;
 }
@@ -350,18 +370,38 @@ maximize_window(Display *display, Window window)
   send_xevent(display, window, state, add, horz, vert, 0, 0);
 }
 
-
+/** @todo move to utils.c */
 void
 print_window(Display *display, Window win)
 {
-  char *name;
-  Atom *atoms;
-  int nitems;
+    char *name, current_desktop_marker=' ', current_monitor_marker=' ', regular_win_marker[8];
 
-  XFetchName(display, win, &name);
-  atoms = XListProperties(display, win, &nitems);
-  
-  printf("Window 0x%x on desktop %d/%d (\"%s\")\t[%d]\n", (unsigned int)win, get_desktop(display, win)+1, 4, name, nitems);
+    int nitems, monitor_id;
+    Geometry_t geometry;
+
+    XFetchName(display, win, &name);
+    get_window_geometry(display, win, &geometry);
+
+    /* get number of properties attached to the window */
+    XListProperties(display, win, &nitems);
+
+    if(window_in_active_desktop(display, win))
+      current_desktop_marker = '*';
+
+    monitor_id = get_window_monitor(win);
+    /* no specific marker if nb_monitor is 1 */
+    if(settings.nb_monitors > 1 && current_desktop_marker == '*' && get_window_monitor(win) == get_window_monitor(get_active_window()))
+        current_monitor_marker = '+';
+
+    if(is_regular_window(win))
+        strcpy(regular_win_marker, "\033[0m");
+    else
+        strcpy(regular_win_marker, "\033[93m");
+
+    printf("%c%c %sWindow 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d monitor %d/%d (\"%s\")\t[%d]\n" COLOR_CLEAR,
+         current_desktop_marker, current_monitor_marker, regular_win_marker, (unsigned int)win,
+         geometry.x, geometry.y, geometry.width, geometry.height,
+         get_window_desktop(display, win)+1, 4, monitor_id+1, settings.nb_monitors, name, nitems);
 }
 
 void
@@ -413,7 +453,13 @@ get_window_geometry(Display *display, Window window, Geometry_t *geometry)
     int x, y;
 
     XGetWindowAttributes(display, window, &attributes);
+
     XTranslateCoordinates(display, window, root, 0, 0, &x, &y, &retwin);
+
+    D(("Window is at (%d, %d), size (%d, %d), border %d",
+       x, y,
+       attributes.width, attributes.height,
+       attributes.border_width));
 
     if(geometry != NULL){
         geometry->x = x;
@@ -424,11 +470,57 @@ get_window_geometry(Display *display, Window window, Geometry_t *geometry)
 }
 
 void
+get_window_relative_geometry(Display *display, Window window, Geometry_t *geometry)
+{
+    XWindowAttributes attributes;
+    Window retwin;
+    int x, y;
+    int i = get_window_monitor(window);
+
+    XGetWindowAttributes(display, window, &attributes);
+
+    XTranslateCoordinates(display, window, root, 0, 0, &x, &y, &retwin);
+
+    if(geometry != NULL){
+        geometry->x = x - settings.monitors[i].workarea.x;
+        geometry->y = y - settings.monitors[i].workarea.y;
+        geometry->width  = attributes.width;
+        geometry->height = attributes.height;
+    }
+}
+
+
+void
 get_window_frame_extent(Display *display, Window window, 
                         int *left, int *right, int *top, int *bottom) /* returning values */
 {
-  *left = *right = *top = *bottom= 0;
-  get_4int_property(display, window, "_NET_FRAME_EXTENTS", left, right, top, bottom);
+  Atom actual_type;
+  int actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned char *data;
+  
+  Atom atom = XInternAtom(display, "_NET_FRAME_EXTENTS", 0);
+  int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                  XA_CARDINAL, &actual_type, &actual_format,
+                                  &nitems, &bytes_after, &data);
+  if(status >= Success 
+     && nitems >= 4
+     && actual_type == XA_CARDINAL
+     && actual_format == 32){
+
+    *left   = ((long*)data)[0];
+    *right  = ((long*)data)[1];
+    *top    = ((long*)data)[2];
+    *bottom = ((long*)data)[3];
+  }else{
+    *left   = 0;
+    *right  = 0;
+    *top    = 0;
+    *bottom = 0;
+}
+
+  XFree(data);
 }
 
 /**
@@ -438,8 +530,34 @@ void
 get_workarea(Display *display, Window window, 
              int *x, int *y, int *width, int *height) /* returning values */
 {
-    *x = *y = *width = *height = 0;
-    get_4int_property(display, window, "_NET_WORKAREA", x, y, width, height);
+    Atom actual_type;
+    int actual_format;
+    unsigned long nitems;
+    unsigned long bytes_after;
+    unsigned char *data;
+
+    Atom atom = XInternAtom(display, "_NET_WORKAREA", 0);
+    int status = XGetWindowProperty(display, window, atom, 0, (~0L), 0,
+                                    XA_CARDINAL, &actual_type, &actual_format,
+                                    &nitems, &bytes_after, &data);
+    if(status >= Success
+       && nitems >= 4
+       && actual_type == XA_CARDINAL
+       && actual_format == 32){
+
+      *x = ((int*)data)[0];
+      *y = ((int*)data)[1];
+      *width = ((int*)data)[2];
+      *height = ((int*)data)[3];
+    }else{
+      *x = -1;
+      *y = -1;
+      *width = -1;
+      *height = -1;
+    }
+
+    XFree(data);
+    return;
 }
 
 /**
@@ -449,8 +567,9 @@ get_workarea(Display *display, Window window,
 void 
 fill_geometry(Display *display, Window window, Geometry_t geometry)
 {
+#if 0
     int right, left, top, bottom;
-
+  
     D(("Adjusting: (%d, %d), (%d, %d)", geometry.x, geometry.y, geometry.width, geometry.height));
 
     /* get _NET_FRAME_EXTENTS */
@@ -473,18 +592,40 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
 
         D(("\t=> (%d, %d), (%d, %d) [compiz]", geometry.x, geometry.y, geometry.width, geometry.height));
     }
-
+#endif
     move_resize_window(display, window, geometry);
   }
 
 
 int
-get_desktop(Display *display, Window window)
+get_window_desktop(Display *display, Window window)
 {
   if(settings.is_compiz)
     return -1;          /* not supported (@todo) */
   else
     return get_int_property(display, window, "_NET_WM_DESKTOP");
+}
+
+int
+get_window_monitor(const Window window)
+{
+    /* let's save some time */
+    if(settings.nb_monitors == 1)
+        return 0;
+
+    /* general case */
+    int i=0;
+    Geometry_t w;
+    get_window_geometry(display, window, &w);
+
+    for(i=0; i<settings.nb_monitors; i++){
+        if( (w.x >= settings.monitors[i].infos.x && w.x < settings.monitors[i].infos.x + settings.monitors[i].infos.width)
+                && (w.y >= settings.monitors[i].infos.y && w.y < settings.monitors[i].infos.y + settings.monitors[i].infos.height) )
+            return i;
+    }
+
+    /* default */
+    return 0;
 }
 
 void

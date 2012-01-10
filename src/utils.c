@@ -14,39 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
-
-#include "tiler.h"
-#include "utils.h"
-
-struct Monitor_t {
-    int id;
-    Geometry_t infos;
-    Geometry_t workarea;
-    char *name;
-};
-
-extern struct settings_t {
-  struct Monitor_t *monitors;
-  bool verbose;
-  bool foreground;
-  bool is_compiz;
-  bool force_run;
-  int nb_monitors;
-  int nb_desktops;
-  char filename[128];
-  char pidfile[128];
-} settings;
-
-void parse_opt(int, char **);
-void parse_conf_file(char *);
-void usage();
-void version();
-
-int get_monitors_config();
-void free_config();
-
-void print_config();
-
-#endif /* CONFIG_H */
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
