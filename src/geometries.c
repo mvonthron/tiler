@@ -51,8 +51,8 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
     Geometry_t *right = (Geometry_t *)malloc(sizeof(Geometry_t));
     Geometry_t *left  = (Geometry_t *)malloc(sizeof(Geometry_t));
 
-    Geometry_t *rightscreen = (Geometry_t *)malloc(sizeof(Geometry_t));
-    Geometry_t *leftscreen  = (Geometry_t *)malloc(sizeof(Geometry_t));
+    Monitor_t *rightscreen = (Monitor_t *)malloc(sizeof(Monitor_t));
+    Monitor_t *leftscreen  = (Monitor_t *)malloc(sizeof(Monitor_t));
 
     /* available space */
     int x = settings.monitors[monitor_id].workarea.x,
@@ -124,10 +124,10 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
                 continue;
 
             if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == LEFTOF){
-                *leftscreen = settings.monitors[i].workarea;
+                *leftscreen = settings.monitors[i];
                 bind[LEFTSCREEN].data = leftscreen;
             }else if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == RIGHTOF){
-                *rightscreen = settings.monitors[i].workarea;
+                *rightscreen = settings.monitors[i];
                 bind[RIGHTSCREEN].data = rightscreen;
             }
         }
@@ -194,6 +194,40 @@ get_relative_position(Geometry_t base, Geometry_t target)
     return ret;
 }
 
+Move_t
+get_current_move(int monitor_id, Geometry_t geo)
+{
+    int i=0;
+    Geometry_t *data;
+    int x_min = geo.x - 30,
+        x_max = geo.x + 30,
+        y_min = geo.y - 30,
+        y_max = geo.y + 30,
+        w_min = geo.width  - 30,
+        w_max = geo.width  + 30,
+        h_min = geo.height - 30,
+        h_max = geo.height + 30;
+
+
+    printf(" ? (%d, %d), (%d, %d)\n", geo.x, geo.y, geo.width, geo.height);
+    for(i=0; i<MOVESLEN; i++){
+        if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move){
+            data = (Geometry_t *) bindings[monitor_id][i].data;
+            printf(" - (%d, %d), (%d, %d)\n", data->x, data->y, data->width, data->height);
+            if(BETWEEN(data->x, x_min, x_max)
+                    && BETWEEN(data->y, y_min, y_max)
+                    && BETWEEN(data->width, w_min, w_max)
+                    && BETWEEN(data->height, h_min, h_max)
+                    ){
+                printf(COLOR_BOLD" ! (%d, %d), (%d, %d)\n"COLOR_CLEAR, data->x, data->y, data->width, data->height);
+                return i;
+            }
+        }
+    }
+
+    return MOVESLEN;
+}
+
 void
 print_geometries()
 {
@@ -217,6 +251,9 @@ print_geometries()
             }else if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move){
                 Geometry_t *data = (Geometry_t *) bindings[monitor_id][i].data;
                 sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->x, data->y, data->width, data->height);
+            }else if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == changescreen){
+                Monitor_t *data = (Monitor_t *) bindings[monitor_id][i].data;
+                sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->workarea.x, data->workarea.y, data->workarea.width, data->workarea.height);
             }
 
             if(bindings[monitor_id][i].keysym == XK_VoidSymbol){

@@ -84,7 +84,7 @@ usage()
 void
 version()
 {
-  printf("tiler v"TILER_VERSION_STR"a \t(built "__DATE__")\n");
+  printf("tiler v"TILER_VERSION_STR" \t(built "__DATE__")\n");
   
   exit(0);
 }
@@ -152,7 +152,7 @@ parse_line(char *token, char *value)
       if     (STREQ(subvalue, "CTRL"))  add_modifier(ControlMask);
       else if(STREQ(subvalue, "SHIFT")) add_modifier(ShiftMask);
       else if(STREQ(subvalue, "ALT"))   add_modifier(Mod1Mask);
-      else if(STREQ(subvalue, "SUPER")) add_modifier(Mod2Mask);
+      else if(STREQ(subvalue, "SUPER")) add_modifier(Mod5Mask);
       
       subvalue = strtok(NULL, "+");
     }
@@ -226,7 +226,7 @@ get_monitors_config()
     XineramaScreenInfo *infos = XineramaQueryScreens(display, &(settings.nb_monitors));
 
     D(("Xinerama nb screens: %d", settings.nb_monitors));
-    settings.monitors = malloc(settings.nb_monitors * sizeof(struct Monitor_t));
+    settings.monitors = malloc(settings.nb_monitors * sizeof(Monitor_t));
 
     for(i=0; i< settings.nb_monitors; i++){
         settings.monitors[i].id = infos[i].screen_number;

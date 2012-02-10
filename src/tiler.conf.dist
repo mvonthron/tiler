@@ -3,18 +3,20 @@
 #
 
 # Modifier mask
-modifier = CTRL
+modifier = CTRL+ALT
 
 # Moves
-top = i
-topleft = u
-topright = o
-bottom = k
-bottomleft = j
-bottomright = l
-left = y
-right = p
-leftscreen =
-rightscreen =
-grid = n
-sidebyside = s
+top = KP_Up
+topleft = KP_Home
+topright = KP_Prior
+bottom = KP_Down
+bottomleft = KP_End
+bottomright = KP_Next
+left = KP_Left
+right = KP_Right
+leftscreen = KP_Divide
+rightscreen = KP_Multiply
+grid = KP_Add
+sidebyside = KP_Enter
+listwindows = KP_Subtract
+maximize = KP_Begin

@@ -21,6 +21,7 @@
 #include "config.h"
 #include "utils.h"
 #include "keybindings.h"
+#include "geometries.h"
 #include "xactions.h"
 #include "callbacks.h"
 
@@ -122,16 +123,23 @@ changescreen(void *data)
     if(data == NULL)
         return;
 
-    Geometry_t monitor = * (Geometry_t *) data;
+    Monitor_t monitor = * (Monitor_t *) data;
     Window win = get_active_window(display);
-    Geometry_t current_position, new_position;
+    Geometry_t current_position, new_position, current_position_abs;
+    Move_t move;
     get_window_relative_geometry(display, win, &current_position);
+    get_window_geometry(display, win, &current_position_abs);
     new_position = current_position;
 
-    /* simple version without size checks */
-    new_position.x = current_position.x + monitor.x;
-    new_position.y = current_position.y + monitor.y;
-    D(("(%d, %d) => (%d, %d) [%d, %d]", current_position.x, current_position.y, new_position.x, new_position.y, monitor.x, monitor.y))
+    if((move = get_current_move(get_window_monitor(win), current_position_abs)) != MOVESLEN){
+        new_position = * (Geometry_t *) bindings[monitor.id][move].data;
+    }else{
+        /* simple version without size checks */
+        new_position.x = current_position.x + monitor.workarea.x;
+        new_position.y = current_position.y + monitor.workarea.y;
+    }
+    D(("(%d, %d) => (%d, %d) [%d, %d]", current_position.x, current_position.y, new_position.x, new_position.y, monitor.workarea.x, monitor.workarea.y))
+
     fill_geometry(display, win, new_position);
 }
 

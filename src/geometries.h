@@ -35,5 +35,6 @@ void get_usable_area(int, Geometry_t *);
 void compute_geometries_for_monitor(int, Binding_t *);
 void print_geometries();
 Position_t get_relative_position(Geometry_t, Geometry_t);
+Move_t get_current_move(int, Geometry_t);
 
 #endif /* GEOMETRIES_H */

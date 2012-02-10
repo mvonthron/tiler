@@ -20,15 +20,15 @@
 #include "tiler.h"
 #include "utils.h"
 
-struct Monitor_t {
+typedef struct {
     int id;
     Geometry_t infos;
     Geometry_t workarea;
     char *name;
-};
+} Monitor_t;
 
 extern struct settings_t {
-  struct Monitor_t *monitors;
+  Monitor_t *monitors;
   bool verbose;
   bool foreground;
   bool is_compiz;

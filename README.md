@@ -20,7 +20,7 @@ of full sized keyboards.
   * `CTRL+ALT+3` : resize and move active window to fit the bottom-right quadrant of the screen.
   * `CTRL+ALT+8` : resize and move active window to fit the upper half of the screen.
   * `CTRL+ALT+Enter` : organize the two most recently used windows side by side.
-  * `CTRL+ALT+5` : organize the four most recently used windows on a grid.
+  * `CTRL+ALT+Add` : organize the four most recently used windows on a grid.
 
 ![Tiler + Openbox with dual screen](http://www.acadis.org/images/tiler/tiler-openbox-xinerama.small.png "Tiler + Openbox with dual screen")
   
@@ -39,7 +39,7 @@ only need the following (and their headers): `libc`, `libm`, `libx11`
 Installation
 ------------
 
-    $ make <br />
+    $ make
     # make install
 
 Things & stuff

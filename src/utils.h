@@ -27,9 +27,11 @@
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
+#define BETWEEN(val, min, max) (((min) < (val)) && ((val) < (max)))
 
 #define STREQ(str1, str2) (strcmp((str1), (str2)) == 0)
 
+#define DEBUG 1
 #ifdef DEBUG
 #define D(msg) do {                                                     \
     printf("%s[%s:%s(%d)]%s ",COLOR_YELLOW, __FILE__, __FUNCTION__, __LINE__, COLOR_CLEAR); \
