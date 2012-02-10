@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -60,22 +60,29 @@ const Binding_t bindings_reference[MOVESLEN] = {
 Binding_t **bindings = NULL;
 
 /**
- *
+ * register X listener
  */
 void grab(const KeyCode code, const unsigned int mod)
 {
-    /* set X listener */
-    XGrabKey(display, code, mod,
+    huXGrabKey(display, code, mod,
              XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
 }
 
+/**
+ * release X listener
+ */
 void ungrab(const KeyCode code, const unsigned int mod)
 {
-    /* unset X listener */
     XUngrabKey(display, code, mod,
                XDefaultRootWindow(display));
 }
 
+/**
+ * setup match between keysym key shortcut and move action
+ * @param move      action to be executed
+ * @param keysym    shortcut wanted for this action
+ * @see Binding_t
+ */
 void add_binding(Move_t move, KeySym keysym)
 {
   if(bindings == NULL)
@@ -98,6 +105,12 @@ void add_binding(Move_t move, KeySym keysym)
 }
 
 
+/**
+ * add a modifier to observed key sequence
+ * modifiers are keys such as Ctrl, Alt, Super...
+ *
+ * @todo currently a single modifier for all key shortcuts
+ */
 void add_modifier(unsigned int modmask)
 {
   modifiers |= modmask;
@@ -107,8 +120,10 @@ void add_modifier(unsigned int modmask)
  * pre-compute data needed by callback functions
  * setup an array of Binding_t for each monitor
  * geometries and other callback data are differents for each monitor
+ * actual data argument computation done in compute_geometries_for_monitor()
  *
- * "bindings" as structure (for two monitors):
+ * "bindings" example structure (for two monitors):
+ * <pre>
  *   bindings = {
  *      [0] = {
  *        {"top",         XK_VoidSymbol, move,         NULL},
@@ -143,8 +158,9 @@ void add_modifier(unsigned int modmask)
  *        {"listwindows", XK_VoidSymbol, listwindows,  NULL},
  *      },
  *   }
+ * </pre>
  *
- * @see Binding_t
+ * @see Binding_t, compute_geometries_for_monitor
  */
 void setup_bindings_data()
 {
@@ -171,7 +187,9 @@ void setup_bindings_data()
     }
 }
 
-
+/**
+ * free allocated memory for bindings data and release key shortcut watchpoints
+ */
 void clear_bindings()
 {
     int m=0, i=0;
@@ -192,6 +210,12 @@ void clear_bindings()
     }
 }
 
+/**
+ * @brief converts XKeyEvent to string and prints it
+ * @param event     received event to be printed
+ * @param with_modifiers    enable/disable printing of modifiers ("Ctrl"...) keys
+ * @ingroup debug
+ */
 void print_key_event(const XKeyEvent event, const bool with_modifiers)
 {
     char keystring[80] = "\0";
@@ -221,7 +245,10 @@ void print_key_event(const XKeyEvent event, const bool with_modifiers)
 }
 
 /**
- * event parsing
+ * If received event is a key sequence, loop over all registered key shortcut
+ * until we have a match. Call registered callback (if any)
+ *
+ * @param event received event to match with
  */
 void dispatch(XEvent *event)
 {

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above

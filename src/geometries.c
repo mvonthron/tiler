@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2011 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -30,7 +30,16 @@
 #include "xactions.h"
 
 
-
+/** Compute data for each callback for a given monitor
+ * @li calculates the geometries for top/bottom/... callbacks
+ * @li calculates the reference of surrounding monitors (left/right for now)
+ * Will allocate memory to store data
+ *
+ * @param[in]   monitor_id          targeted monitor (as identified by get_monitors_config())
+ * @param[out]  monitor_bindings    pointer to arrays of keybindings
+ *
+ * @see get_monitors_config, Binding_t
+ */
 void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 {
     if(monitor_id >= settings.nb_monitors || monitor_bindings == NULL)
@@ -38,6 +47,7 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 
     D(("Computing data for monitor %d", monitor_id));
 
+    /* recover only the monitor array we are interested in */
     Binding_t *bind = bindings[monitor_id];
 
     Geometry_t *top      = (Geometry_t *)malloc(sizeof(Geometry_t));
@@ -135,6 +145,21 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 }
 
 
+/**
+ * @brief Custom workarea finder handling multiple screens
+ *
+ * Standard way is to use <code>_NET_WORKAREA</code> atom. However it
+ * is not suited for multi-monitors systems (returns a single rectangle large enough to
+ * contains every monitor).
+ *
+ * The real algorithm would me a Largest empty rectangle problem feeded with all
+ * system windows (docks mostly). Currently we simplify a lot by assuming we only have docks
+ * on the top or on the bottom and we remove shrink the monitor's size base on the dock's geometries
+ *
+ * @pre monitor physical size should be available (get_monitors_config())
+ * @param[in]   monitor_id  target monitor
+ * @param[out]  area        where to put result of calculation
+ */
 void get_usable_area(int monitor_id, Geometry_t *area)
 {
     /* _NET_WORKAREA atom doesn't fit for multiple screen */

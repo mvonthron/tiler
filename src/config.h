@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,12 +20,26 @@
 #include "tiler.h"
 #include "utils.h"
 
+
+/**
+ * @page Settings
+ *
+ * @todo uniformize names settings and config
+
+  \msc
+    Sender,Receiver;
+    Sender->Receiver [label="Command()", URL="\ref Receiver::Command()"];
+    Sender<-Receiver [label="Ack()", URL="\ref Ack()", ID="1"];
+  \endmsc
+ */
+
 struct Monitor_t {
     int id;
     Geometry_t infos;
     Geometry_t workarea;
     char *name;
 };
+
 
 extern struct settings_t {
   struct Monitor_t *monitors;

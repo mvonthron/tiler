@@ -1,5 +1,4 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/* Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -24,12 +23,29 @@
 #include "xactions.h"
 #include "callbacks.h"
 
+/**
+ * @brief Dummy function for test purpose
+ *
+ * @param[in] data unused
+ * @ingroup debug
+ */
 void
 dummy(void *data)
 {
   D(("*** dummy ***"));
 }
 
+/**
+ * @brief Organize windows in current desktop on a grid
+ *
+ * Takes most recently used windows and tile them:
+ * @li 1 available window: maximize it
+ * @li 2 windows: place them side by side
+ * @li 3 windows: most recent on the left, two others on the right
+ * @li 4 windows: on a grid (5th window and followings ignored)
+ *
+ * @param[in] data (unused)
+ */
 void
 grid(void *data)
 {
@@ -79,6 +95,10 @@ grid(void *data)
   fill_geometry(display, window_list[size-4], bottomright);
 }
 
+/**
+ * @brief Organize the two first windows in stack side by side
+ * @param[in] data (unused)
+ */
 void
 sidebyside(void *data)
 {
@@ -98,6 +118,12 @@ sidebyside(void *data)
   fill_geometry(display, window_list[size-2], right);
 }
 
+/**
+ * @brief Standard move window function
+ * @param[in] data
+ *  Geometry_t structure representing the desired shape for the active window
+ * @todo rename
+ */
 void
 move(void *data)
 {
@@ -110,12 +136,24 @@ move(void *data)
   fill_geometry(display, get_active_window(display), geometry);
 }
 
+
+/**
+ * @brief Maximize active window
+ * @note people may use standard ALT+F10 though
+ * @param[in] data (unused)
+ */
 void
 maximize(void *data)
 {
   maximize_window(display, get_active_window());
 }
 
+/**
+ * move window from one screen to another
+ * @param[in] data target monitor
+ * @since 0.2
+ * @see compute_geometries_for_monitor
+ */
 void
 changescreen(void *data)
 {
@@ -135,7 +173,12 @@ changescreen(void *data)
     fill_geometry(display, win, new_position);
 }
 
-/** debug & info callbacks */
+
+/**
+ * list windows on current desktop
+ * @param[in] data unused
+ * @ingroup debug
+ */
 void
 listwindows(void *data)
 {
