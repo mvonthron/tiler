@@ -199,14 +199,14 @@ get_current_move(int monitor_id, Geometry_t geo)
 {
     int i=0;
     Geometry_t *data;
-    int x_min = geo.x - 30,
-        x_max = geo.x + 30,
-        y_min = geo.y - 30,
-        y_max = geo.y + 30,
-        w_min = geo.width  - 30,
-        w_max = geo.width  + 30,
-        h_min = geo.height - 30,
-        h_max = geo.height + 30;
+    int x_min = geo.x - 50,
+        x_max = geo.x + 50,
+        y_min = geo.y - 50,
+        y_max = geo.y + 50,
+        w_min = geo.width  - 50,
+        w_max = geo.width  + 50,
+        h_min = geo.height - 50,
+        h_max = geo.height + 50;
 
 
     printf(" ? (%d, %d), (%d, %d)\n", geo.x, geo.y, geo.width, geo.height);
