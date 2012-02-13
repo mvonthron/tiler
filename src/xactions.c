@@ -56,6 +56,7 @@ get_int_property(Display *display, Window window, char *property)
     value = *((int *)data);
   }
   
+  Xfree(data);
   return value;
 }
 
@@ -119,6 +120,9 @@ get_4int_property(Display *display, Window window, char *property, int *data0, i
   return ret;
 }
 
+/**
+ * @warning data must be freed by caller with XFree()
+ */
 static int
 get_property(Display *display, Window window, char *property, void *data)
 {
@@ -158,6 +162,7 @@ get_atom_property(Window window, char *property)
     value = *((int *)data);
   }
 
+  XFree(data);
   return value;
 }
 
@@ -338,6 +343,7 @@ list_windows(Display* display, Window root, Window **window_list, uint options)
     }
   }
   
+  XFree(data);
   return actual_size;
 }
 

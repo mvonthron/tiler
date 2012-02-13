@@ -209,17 +209,14 @@ get_current_move(int monitor_id, Geometry_t geo)
         h_max = geo.height + 50;
 
 
-    printf(" ? (%d, %d), (%d, %d)\n", geo.x, geo.y, geo.width, geo.height);
     for(i=0; i<MOVESLEN; i++){
         if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move){
             data = (Geometry_t *) bindings[monitor_id][i].data;
-            printf(" - (%d, %d), (%d, %d)\n", data->x, data->y, data->width, data->height);
             if(BETWEEN(data->x, x_min, x_max)
                     && BETWEEN(data->y, y_min, y_max)
                     && BETWEEN(data->width, w_min, w_max)
                     && BETWEEN(data->height, h_min, h_max)
                     ){
-                printf(COLOR_BOLD" ! (%d, %d), (%d, %d)\n"COLOR_CLEAR, data->x, data->y, data->width, data->height);
                 return i;
             }
         }
