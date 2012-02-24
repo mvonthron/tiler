@@ -145,8 +145,7 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
 }
 
 
-/**
- * @brief Custom workarea finder handling multiple screens
+/** Custom workarea finder handling multiple screens
  *
  * Standard way is to use <code>_NET_WORKAREA</code> atom. However it
  * is not suited for multi-monitors systems (returns a single rectangle large enough to
@@ -154,7 +153,7 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
  *
  * The real algorithm would me a Largest empty rectangle problem feeded with all
  * system windows (docks mostly). Currently we simplify a lot by assuming we only have docks
- * on the top or on the bottom and we remove shrink the monitor's size base on the dock's geometries
+ * on the top or on the bottom and we shrink the monitor's size base on the dock's geometries
  *
  * @pre monitor physical size should be available (get_monitors_config())
  * @param[in]   monitor_id  target monitor
@@ -218,6 +217,7 @@ get_relative_position(Geometry_t base, Geometry_t target)
 
     return ret;
 }
+
 
 void
 print_geometries()

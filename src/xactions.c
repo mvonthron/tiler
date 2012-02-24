@@ -369,7 +369,18 @@ maximize_window(Display *display, Window window)
   send_xevent(display, window, state, add, horz, vert, 0, 0);
 }
 
-/** @todo move to utils.c */
+/** Build and print a string showing properties of a window
+ *
+ * The string uses the following format
+ * <code>
+ *  +* Window 0x<hex id> at (<x>, <y>), size (<width>, <height>)     desktop <current>/<total>, monitor <current>/<total>  (<name>)
+ * </code>
+ * @li "+" marker denotes a window on the current monitor (omited if single monitor)
+ * @li "*" marker denotes a window on the current desktop
+ * @li yellow lines denote windows tagged as "system" (docks, background...)
+ *
+ * @todo move to utils.c
+ */
 void
 print_window(Display *display, Window win)
 {
@@ -393,9 +404,9 @@ print_window(Display *display, Window win)
         current_monitor_marker = '+';
 
     if(is_regular_window(win))
-        strcpy(regular_win_marker, "\033[0m");
+        strcpy(regular_win_marker, COLOR_CLEAR);
     else
-        strcpy(regular_win_marker, "\033[93m");
+        strcpy(regular_win_marker, COLOR_YELLOW);
 
     printf("%c%c %sWindow 0x%x at (%d, %d), size (%d, %d)\tdesktop %d/%d monitor %d/%d (\"%s\")\t[%d]\n" COLOR_CLEAR,
          current_desktop_marker, current_monitor_marker, regular_win_marker, (unsigned int)win,
@@ -522,8 +533,10 @@ get_window_frame_extent(Display *display, Window window,
   XFree(data);
 }
 
-/**
+/** Returns geometry of the workarea
  *
+ * The "workarea" is the set of coordinates and sizes of
+ * @deprecated single monitor only property: replaced by get_usable_area()
  */
 void
 get_workarea(Display *display, Window window, 
@@ -559,9 +572,12 @@ get_workarea(Display *display, Window window,
     return;
 }
 
-/**
- * Compute the right x/y/width/height to fill the desired space
- * by taking border thickness into account
+/** Compute the right x/y/width/height to fill the desired space by taking
+ * border thickness into account.
+ *
+ * This function use to adjust size and position based on "frame extents" and other properties
+ * but it didn't lead to sufficient enhancement. It has been removed since the behavior is ok
+ * in most cases, Compiz being the notable weird one...
  */
 void 
 fill_geometry(Display *display, Window window, Geometry_t geometry)
@@ -595,7 +611,9 @@ fill_geometry(Display *display, Window window, Geometry_t geometry)
     move_resize_window(display, window, geometry);
   }
 
-
+/** Find which desktop a specific window belongs to
+ * @return  Id of the desktop where the window has been found, defaults to 0 otherwise
+ */
 int
 get_window_desktop(Display *display, Window window)
 {
@@ -605,6 +623,11 @@ get_window_desktop(Display *display, Window window)
     return get_int_property(display, window, "_NET_WM_DESKTOP");
 }
 
+/** Find which monitor a specific window belongs to
+ * @note Not supported in Compiz environment
+ * @return  Id of the desktop where the window has been found (-1 if we are running compiz)
+ * @todo Implement a workaround for compiz
+ */
 int
 get_window_monitor(const Window window)
 {
@@ -627,6 +650,16 @@ get_window_monitor(const Window window)
     return 0;
 }
 
+/** Check whether we are running in a Compiz environment or not
+ *
+ * Compiz doesn't behave like most other VMs, EMWH is not fully implemented
+ * and shadowing disrupts window placement.
+ *
+ * Checking is based on:
+ * @li forced through <code>--compiz</code> option at launch
+ * @li presence of the <code>_COMPIZ_SUPPORTING_DM_CHECK</code> atom on the root window
+ *
+ */
 void
 check_compiz_wm()
 {

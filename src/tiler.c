@@ -61,6 +61,15 @@ signal_handler(int sig)
   }
 }
 
+/**
+  @mainpage Tiler - Window tiling utility for X11
+
+Tiler is a lightweight tiling utility for X Window Managers. It uses keyboard
+shortcuts to organize windows on your desktop on demand. This provides a
+very convenient way of moving/resizing windows, for instance by showing
+side-by-side two windows. This is especially useful for large screens.
+ */
+
 int
 main(int argc, char **argv)
 {
@@ -108,6 +117,7 @@ main(int argc, char **argv)
     close(pidfile);
   }
 
+  /** @todo isolate display and root variables in xactions.c */
   display = XOpenDisplay(NULL);
   if (display == NULL) {
     D(("Cannot connect to X server"));

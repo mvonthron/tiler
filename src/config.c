@@ -249,8 +249,21 @@ get_monitors_config()
     return settings.nb_monitors;
 }
 
-/**
+/** Print current configuration
  *
+ * Does not print shapes and other geometries
+ *
+ * Available:
+ * @li program version (TILER_VERSION_STR)
+ * @li is verbose
+ * @li is running in foreground
+ * @li is compiz
+ * @li is in force run mode
+ * @li number of monitors available
+ * @li name of configuration file used
+ * @li name of pid file used
+ *
+ * @see print_geometries
  */
 void
 print_config()
@@ -275,7 +288,8 @@ print_config()
 }
 
 
-
+/** Free allocated memory containing monitors information
+  */
 void free_config()
 {
     FREE(settings.monitors);
