@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,49 +18,41 @@
 #define CALLBACKS_H
 
 /**
- * dummy function for test purpose 
- * @param [in] data unused
- * @ingroup debug
- */
+  @page Callbacks
+
+  Callbacks are the final actions made available through the configuration file
+  They are matched with a registered key shortcut.
+
+  A callback is a pointer to function taking a <code>void *</code> argument. In some
+  cases, this argument is not needed and therefore omitted. For instance, maximize()
+  takes the active window and ask for its maximization directly through XLib, there is
+  no argument needed for this. The move() function however needs a Geometry_t argument
+  representing the rectangle shape we want to fill with the active window. Theses arguments
+  are pre-calculated at launch with compute_geometries_for_monitor().
+
+  Available callbacks:
+  @li dummy()
+  @li move()
+  @li grid()
+  @li sidebyside()
+  @li changescreen()
+  @li maximize()
+  @li listwindows()
+  */
+
+
 void dummy(void *);
 
-/**
- * standard move window function
- * @param [in] data geometry_t structure
- * @todo rename
- */
 void move(void *);
 
-/**
- * organize windows in current desktop on a grid
- * @param [in] data unused
- */
 void grid(void *);
 
-/**
- * organize the two first windows in stack side by side
- * @param [in] data unused
- */
 void sidebyside(void *);
 
-/**
- * change screen
- * @param [in] data geometry_t workarea of target monitor
- */
 void changescreen(void *);
 
-/**
- * maximize active window
- * people may use standard ALT+F10 though
- * @param [in] data unused
- */
 void maximize(void *);
 
-/**
- * list windows on current desktop
- * @param [in] data unused
- * @ingroup debug
- */
 void listwindows(void *);
 
 #endif /* CALLBACKS_H */

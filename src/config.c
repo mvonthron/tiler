@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -36,199 +36,205 @@
 
 static const char *optstring = "hvfFc:V";
 static const struct option longopts[] = {
-  {"foreground",  0, NULL, 'f'},
-  {"force",       0, NULL, 'F'},
-  {"compiz",      0, NULL, 'C'},
-  {"verbose",     0, NULL, 'v'},
-  {"version",     0, NULL, 'V'},
-  {"help",        0, NULL, 'h'},
-  {NULL,          0, NULL, 0},
+    {"foreground",  0, NULL, 'f'},
+    {"force",       0, NULL, 'F'},
+    {"compiz",      0, NULL, 'C'},
+    {"verbose",     0, NULL, 'v'},
+    {"version",     0, NULL, 'V'},
+    {"help",        0, NULL, 'h'},
+    {NULL,          0, NULL,   0},
 };
 
 struct settings_t settings = {
-  NULL,             /* monitors */
-  false,            /* verbose */
-  false,            /* foreground */
-  false,            /* is_compiz */
-  false,            /* force_run */
-  0,                /* nb_monitors */
-  0,                /* nb_desktop */
-  "",               /* conf filename */
-  "/tmp/tiler.pid", /* pid filename */
+    NULL,             /* monitors */
+    false,            /* verbose */
+    false,            /* foreground */
+    false,            /* is_compiz */
+    false,            /* force_run */
+    0,                /* nb_monitors */
+    0,                /* nb_desktop */
+    "",               /* conf filename */
+    "/tmp/tiler.pid", /* pid filename */
 
 };
 
 /**
- * 
+ * Print short help message and exit
  */
-void 
+void
 usage()
 {
-  printf("usage: tiler [options]\n"
-         "options: \n"
-         "  -f  --foreground            Run in foreground rather than as a daemon \n"
-         "  -F  --force                 Force program to start even if a pid file is detected \n"
-         "  -c  --config-file <file>    Use <file> instead of ~/.config/tiler.conf as a configuration file \n"
-         "      --compiz                Force Compiz behaviour even if not detected\n"
-         "  -v  --verbose               Print various messages \n"
-         "  -V  --version               Print version number and exit \n"
-         "  -h  --help                  Print this message and exit \n"
-        );
+    printf("usage: tiler [options]\n"
+           "options: \n"
+           "  -f  --foreground            Run in foreground rather than as a daemon \n"
+           "  -F  --force                 Force program to start even if a pid file is detected \n"
+           "  -c  --config-file <file>    Use <file> instead of ~/.config/tiler.conf as a configuration file \n"
+           "      --compiz                Force Compiz behaviour even if not detected\n"
+           "  -v  --verbose               Print various messages \n"
+           "  -V  --version               Print version number and exit \n"
+           "  -h  --help                  Print this message and exit \n"
+          );
 
-  exit(0);
+    exit(0);
 }
 
-/**
- * 
+/** Print program version and build date and exit
+ * @see TILER_VERSION_STR
  */
 void
 version()
 {
-  printf("tiler v"TILER_VERSION_STR" \t(built "__DATE__")\n");
-  
-  exit(0);
+    printf("tiler v"TILER_VERSION_STR" \t(built "__DATE__")\n");
+    exit(0);
 }
 
 /**
- * 
+ * Parse command line arguments
+ * @see Settings_t
  */
 void
 parse_opt(int argc, char **argv)
 {
-  int opt, index;
-  
-  while((opt = getopt_long(argc, argv, optstring, longopts, &index)) != -1){
-    switch(opt){
-    case 'h':
-      usage();
-      break;
-    case 'v':
-      settings.verbose = true;
-      break;
-    case 'c':
-      strcpy(settings.filename, optarg);
-      break;
-    case 'C':
-      settings.is_compiz = true;
-      break;
-    case 'V':
-      version();
-      break;
-    case 'F':
-      settings.force_run = true;
-      break;
-    case 'f':
-      settings.foreground = true;
-      break;
-    case '?':
-    default:
-      break;
+    int opt, index;
+
+    while((opt = getopt_long(argc, argv, optstring, longopts, &index)) != -1) {
+        switch(opt) {
+        case 'h':
+            usage();
+            break;
+        case 'v':
+            settings.verbose = true;
+            break;
+        case 'c':
+            strcpy(settings.filename, optarg);
+            break;
+        case 'C':
+            settings.is_compiz = true;
+            break;
+        case 'V':
+            version();
+            break;
+        case 'F':
+            settings.force_run = true;
+            break;
+        case 'f':
+            settings.foreground = true;
+            break;
+        case '?':
+        default:
+            break;
+        }
     }
-  }
-  
-  if( STREQ(settings.filename, "") ){
-    strcpy(settings.filename, getenv("HOME"));
-    strcat(settings.filename, "/.config/tiler.conf");
-  }
+
+    if(STREQ(settings.filename, "")) {
+        strcpy(settings.filename, getenv("HOME"));
+        strcat(settings.filename, "/.config/tiler.conf");
+    }
 }
 
 /**
- * 
+ * Parse a single line of the config file
  */
-static void 
+static void
 parse_line(char *token, char *value)
 {
-  int keysym=NoSymbol, i=0;
-  Move_t move=MOVESLEN;
-  
-  /**
-   * special case for modifier masks
-   */
-  if( STREQ(token, "modifier") ){
-    char *subvalue = strtok(value, "+");
-    
-    while(subvalue != NULL){
-      /* modifier masks */
-      if     (STREQ(subvalue, "CTRL"))  add_modifier(ControlMask);
-      else if(STREQ(subvalue, "SHIFT")) add_modifier(ShiftMask);
-      else if(STREQ(subvalue, "ALT"))   add_modifier(Mod1Mask);
-      else if(STREQ(subvalue, "SUPER")) add_modifier(Mod5Mask);
-      
-      subvalue = strtok(NULL, "+");
+    int keysym = NoSymbol, i = 0;
+    Move_t move = MOVESLEN;
+
+    /**
+     * special case for modifier masks
+     */
+    if(STREQ(token, "modifier")) {
+        char *subvalue = strtok(value, "+");
+
+        while(subvalue != NULL) {
+            /* modifier masks */
+            if(STREQ(subvalue, "CTRL"))  add_modifier(ControlMask);
+            else if(STREQ(subvalue, "SHIFT")) add_modifier(ShiftMask);
+            else if(STREQ(subvalue, "ALT"))   add_modifier(Mod1Mask);
+            else if(STREQ(subvalue, "SUPER")) add_modifier(Mod2Mask);
+
+            subvalue = strtok(NULL, "+");
+        }
+
+        return;
     }
-    
-    return;
-  }
-  
-  /**
-   * token parsing
-   */
-  for(i=0; i<MOVESLEN; i++)
-    if( STREQ(token, bindings_reference[i].name) )
-      move = (Move_t) i;
 
-  if(move == MOVESLEN){
-    D(("Unknown token \"%s\"", token));
-    return;
-  }
-    
-  /**
-   * value parsing 
-   */
-  if(value[0] == '\0') 
-    return;
+    /**
+     * token parsing
+     */
+    for(i = 0; i < MOVESLEN; i++)
+        if(STREQ(token, bindings_reference[i].name))
+            move = (Move_t) i;
 
-  keysym = XStringToKeysym(value);
-  if(keysym != NoSymbol)
-    add_binding(move, keysym); /* actual key binding */
+    if(move == MOVESLEN) {
+        D(("Unknown token \"%s\"", token));
+        return;
+    }
+
+    /**
+     * value parsing
+     */
+    if(value[0] == '\0')
+        return;
+
+    keysym = XStringToKeysym(value);
+    if(keysym != NoSymbol)
+        add_binding(move, keysym); /* actual key binding */
 }
 
-/**
- * 
+/** Parse configuration file
+ *
+ * Currently only contains keybinding informations
+ * @param filename file to be processed
  */
 void
 parse_conf_file(char *filename)
 {
-  FILE *fd;
-  char buffer[256];
-  char token[32];
-  char value[32];
-  
-  fd = fopen(filename, "r");
-  
-  if(fd == NULL){
-    FATAL(("Unable to open \"%s\"", filename));
-  }
-  
-  while (fgets(buffer, sizeof(buffer), fd) != NULL) {
-    if(*buffer != '#' && *buffer != '\n' ){
-      sscanf(buffer, "%s = %s", token, value);
-      parse_line(token, value);
+    FILE *fd;
+    char buffer[256];
+    char token[32];
+    char value[32];
+
+    fd = fopen(filename, "r");
+
+    if(fd == NULL) {
+        FATAL(("Unable to open \"%s\"", filename));
     }
-    
-    /* reset */
-    *buffer = *token = *value = '\0';
-  }
-  
-  fclose(fd);
+
+    while(fgets(buffer, sizeof(buffer), fd) != NULL) {
+        if(*buffer != '#' && *buffer != '\n') {
+            sscanf(buffer, "%s = %s", token, value);
+            parse_line(token, value);
+        }
+
+        /* reset */
+        *buffer = *token = *value = '\0';
+    }
+
+    fclose(fd);
 }
 
+/** Retrieve informations about monitor configuration (number, size...)
+ *
+ * @note Xinerama extension is needed
+ */
 int
 get_monitors_config()
 {
-    if(!XineramaIsActive(display)){
+    if(!XineramaIsActive(display)) {
         D(("Xinerama disabled"));
         settings.nb_monitors = 1;
         return settings.nb_monitors;
     }
 
-    int i=0;
+    int i = 0;
     XineramaScreenInfo *infos = XineramaQueryScreens(display, &(settings.nb_monitors));
 
     D(("Xinerama nb screens: %d", settings.nb_monitors));
     settings.monitors = malloc(settings.nb_monitors * sizeof(Monitor_t));
 
-    for(i=0; i< settings.nb_monitors; i++){
+    for(i = 0; i < settings.nb_monitors; i++) {
         settings.monitors[i].id = infos[i].screen_number;
         settings.monitors[i].infos.x = infos[i].x_org;
         settings.monitors[i].infos.y = infos[i].y_org;
@@ -249,8 +255,21 @@ get_monitors_config()
     return settings.nb_monitors;
 }
 
-/**
+/** Print current configuration
  *
+ * Does not print shapes and other geometries
+ *
+ * Available:
+ * @li program version (TILER_VERSION_STR)
+ * @li is verbose
+ * @li is running in foreground
+ * @li is compiz
+ * @li is in force run mode
+ * @li number of monitors available
+ * @li name of configuration file used
+ * @li name of pid file used
+ *
+ * @see print_geometries
  */
 void
 print_config()
@@ -270,12 +289,13 @@ print_config()
            (settings.force_run ? "true" : "false"),
            settings.nb_monitors,
            settings.filename, settings.pidfile
-           );
+          );
 
 }
 
 
-
+/** Free allocated memory containing monitors information
+ */
 void free_config()
 {
     FREE(settings.monitors);

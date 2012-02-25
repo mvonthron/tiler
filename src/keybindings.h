@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2010 Manuel Vonthron <manuel.vonthron@acadis.org>
+/*
+ * Copyright (c) 2012 Manuel Vonthron <manuel.vonthron@acadis.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,11 +21,16 @@
 #include "tiler.h"
 #include "callbacks.h"
 
+
+/** contains the "link" keycode <-> callback name <-> callback function <-> data
+ * @struct Binding_t
+ * @see bindings_reference
+ */
 typedef struct {
-    char *name;
-    KeySym keysym;   /* default XK_VoidSymbol => NULL */
-    void (*callback)(void*);
-    void *data;
+    char *name;                 /**< friendly name of the binding, for matching with configuration and printing/debugging purpose. @see bindings_reference*/
+    KeySym keysym;              /**< keysym key sequence to be matched with, defaults to XK_VoidSymbol:X11's NULL */
+    void (*callback)(void*);    /**< function to be called when the key sequence is matched @see callbacks.h */
+    void *data;                 /**< cookie passed to callback function @see compute_geometries_for_monitor */
 } Binding_t;
 
 extern const Binding_t bindings_reference[MOVESLEN];
