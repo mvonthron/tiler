@@ -32,8 +32,8 @@
 #include "xactions.h"
 
 /* extern display & root */
-Display *display=NULL;
-Window root=BadWindow;
+Display *display = NULL;
+Window root = BadWindow;
 
 void
 cleanup()
@@ -52,13 +52,13 @@ cleanup()
 void
 signal_handler(int sig)
 {
-  if(sig == SIGTERM || sig == SIGINT){
-    D(("Exiting"));
+    if(sig == SIGTERM || sig == SIGINT) {
+        D(("Exiting"));
 
-    /* @todo should interrupt listening loop with a XSendEvent */
-    cleanup();
-    exit(0);
-  }
+        /* @todo should interrupt listening loop with a XSendEvent */
+        cleanup();
+        exit(0);
+    }
 }
 
 /**
@@ -73,87 +73,87 @@ side-by-side two windows. This is especially useful for large screens.
 int
 main(int argc, char **argv)
 {
-  XEvent event;
-  
-  parse_opt(argc, argv);
-  
-  /* signal capture */
-  signal(SIGTERM, signal_handler);
-  signal(SIGINT, signal_handler);
-  
-  /* 
-   * daemonize
-   *
-  if(!settings.foreground){
-    int pid = fork();
-    if(pid < 0)
-      return EXIT_FAILURE;
-    if(pid > 0)
-      return EXIT_SUCCESS;
+    XEvent event;
 
-    umask(0);
+    parse_opt(argc, argv);
 
-    int sid = setsid();
-    if(sid < 0)
-      return EXIT_FAILURE;
-  }
-  */
-  
-  /*
-   * pid file creation
-   * ensuring single instance of tiler
-   */
-  int pidfile = open(settings.pidfile, O_CREAT | O_EXCL | O_WRONLY);
-  if(pidfile == -1){
-    if(errno == EEXIST)
-      D(("pid file \"%s\" already exists", settings.pidfile));
-      
-    if(!settings.force_run)
-      exit(1);
-  }else{
-    char pidline[32];
-    sprintf(pidline, "%d", getpid());
-    write(pidfile, pidline, strlen(pidline));
-    close(pidfile);
-  }
+    /* signal capture */
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
 
-  /** @todo isolate display and root variables in xactions.c */
-  display = XOpenDisplay(NULL);
-  if (display == NULL) {
-    D(("Cannot connect to X server"));
-    return EXIT_FAILURE;
-  }
-  
-  root = XDefaultRootWindow(display);
+    /*
+     * daemonize
+     *
+    if(!settings.foreground){
+      int pid = fork();
+      if(pid < 0)
+        return EXIT_FAILURE;
+      if(pid > 0)
+        return EXIT_SUCCESS;
 
-  check_compiz_wm();
+      umask(0);
 
-  /* get monitors info */
-  get_monitors_config(display, root);
+      int sid = setsid();
+      if(sid < 0)
+        return EXIT_FAILURE;
+    }
+    */
 
-  setup_bindings_data();
+    /*
+     * pid file creation
+     * ensuring single instance of tiler
+     */
+    int pidfile = open(settings.pidfile, O_CREAT | O_EXCL | O_WRONLY);
+    if(pidfile == -1) {
+        if(errno == EEXIST)
+            D(("pid file \"%s\" already exists", settings.pidfile));
 
-  /* 
-   * configuration parsing
-   * keybinding setup 
-   */
-  parse_conf_file(settings.filename);
+        if(!settings.force_run)
+            exit(1);
+    } else {
+        char pidline[32];
+        sprintf(pidline, "%d", getpid());
+        write(pidfile, pidline, strlen(pidline));
+        close(pidfile);
+    }
 
-  if(settings.verbose){
-     print_config();
-     print_geometries();
-  }
+    /** @todo isolate display and root variables in xactions.c */
+    display = XOpenDisplay(NULL);
+    if(display == NULL) {
+        D(("Cannot connect to X server"));
+        return EXIT_FAILURE;
+    }
 
-  /**
-   * main key event listening loop
-   */
-  for(;;) {
-    XNextEvent(display, &event);
-    dispatch(&event);
-  }
+    root = XDefaultRootWindow(display);
 
-  cleanup();
-  XCloseDisplay(display);
+    check_compiz_wm();
 
-  return EXIT_SUCCESS;
+    /* get monitors info */
+    get_monitors_config(display, root);
+
+    setup_bindings_data();
+
+    /*
+     * configuration parsing
+     * keybinding setup
+     */
+    parse_conf_file(settings.filename);
+
+    if(settings.verbose) {
+        print_config();
+        print_geometries();
+    }
+
+    /**
+     * main key event listening loop
+     */
+    for(;;) {
+        XNextEvent(display, &event);
+        dispatch(&event);
+    }
+
+    cleanup();
+    XCloseDisplay(display);
+
+    return EXIT_SUCCESS;
 }

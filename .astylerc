@@ -1,0 +1,9 @@
+style=k&r 
+indent=spaces=4 
+indent-preprocessor 
+pad-oper 
+unpad-paren 
+align-pointer=name
+recursive
+suffix=none
+verbose

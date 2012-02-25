@@ -25,12 +25,6 @@
  * @page Settings
  *
  * @todo uniformize names settings and config
-
-  \msc
-    Sender,Receiver;
-    Sender->Receiver [label="Command()", URL="\ref Receiver::Command()"];
-    Sender<-Receiver [label="Ack()", URL="\ref Ack()", ID="1"];
-  \endmsc
  */
 
 struct Monitor_t {

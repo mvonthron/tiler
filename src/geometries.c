@@ -74,69 +74,69 @@ void compute_geometries_for_monitor(int monitor_id, Binding_t *monitor_bindings)
     top->x      = x;
     top->y      = y;
     top->width  = w;
-    top->height = (h/2);
+    top->height = (h / 2);
     bind[TOP].data = top;
 
     /* topright */
-    topright->x      = x+(w/2);
+    topright->x      = x + (w / 2);
     topright->y      = y;
-    topright->width  = (w/2);
-    topright->height = (h/2);
+    topright->width  = (w / 2);
+    topright->height = (h / 2);
     bind[TOPRIGHT].data = topright;
 
     /* topleft */
     topleft->x      = x;
     topleft->y      = y;
-    topleft->width  = (w/2);
-    topleft->height = (h/2);
+    topleft->width  = (w / 2);
+    topleft->height = (h / 2);
     bind[TOPLEFT].data = topleft;
 
     /* bottom */
     bottom->x      = x;
-    bottom->y      = y+(h/2);
+    bottom->y      = y + (h / 2);
     bottom->width  = w;
-    bottom->height = (h/2);
+    bottom->height = (h / 2);
     bind[BOTTOM].data = bottom;
 
     /* bottomright */
-    bottomright->x      = x+(w/2);
-    bottomright->y      = y+(h/2);
-    bottomright->width  = (w/2);
-    bottomright->height = (h/2);
+    bottomright->x      = x + (w / 2);
+    bottomright->y      = y + (h / 2);
+    bottomright->width  = (w / 2);
+    bottomright->height = (h / 2);
     bind[BOTTOMRIGHT].data = bottomright;
 
     /* bottomleft */
     bottomleft->x      = x;
-    bottomleft->y      = y+(h/2);
-    bottomleft->width  = (w/2);
-    bottomleft->height = (h/2);
+    bottomleft->y      = y + (h / 2);
+    bottomleft->width  = (w / 2);
+    bottomleft->height = (h / 2);
     bind[BOTTOMLEFT].data = bottomleft;
 
     /* right */
-    right->x      = x+(w/2);
+    right->x      = x + (w / 2);
     right->y      = y;
-    right->width  = (w/2);
+    right->width  = (w / 2);
     right->height = h;
     bind[RIGHT].data = right;
 
     /* left */
     left->x      = x;
     left->y      = y;
-    left->width  = (w/2);
+    left->width  = (w / 2);
     left->height = h;
     bind[LEFT].data = left;
 
     /** screen change data */
-    if(settings.nb_monitors > 0){
+    if(settings.nb_monitors > 0) {
         int i;
-        for(i=0; i<settings.nb_monitors; i++){
+        for(i = 0; i < settings.nb_monitors; i++) {
             if(i == monitor_id)
                 continue;
 
-            if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == LEFTOF){
+            if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == LEFTOF) {
                 *leftscreen = settings.monitors[i].workarea;
                 bind[LEFTSCREEN].data = leftscreen;
-            }else if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == RIGHTOF){
+            } else if(get_relative_position(settings.monitors[monitor_id].infos, settings.monitors[i].infos) == RIGHTOF) {
                 *rightscreen = settings.monitors[i].workarea;
                 bind[RIGHTSCREEN].data = rightscreen;
             }
@@ -170,14 +170,14 @@ void get_usable_area(int monitor_id, Geometry_t *area)
     size = list_windows(display, root, &window_list, LIST_SYSTEM);
 
     if(window_list == NULL)
-      return;
+        return;
 
     /* we simplify greatly the calculation, at least for now
       real problem is the "largest empty rectangle problem" */
 
     Geometry_t geo;
     int mon;
-    for(i=0; i< size; i++){
+    for(i = 0; i < size; i++) {
         if((mon = get_window_monitor(window_list[i])) != monitor_id)
             continue;
 
@@ -187,10 +187,10 @@ void get_usable_area(int monitor_id, Geometry_t *area)
                 && geo.height >= settings.monitors[monitor_id].infos.height)
             continue;
 
-        if(geo.y < settings.monitors[monitor_id].infos.height/2){
+        if(geo.y < settings.monitors[monitor_id].infos.height / 2) {
             area->y = geo.y + geo.height;
             area->height -= geo.height;
-        }else{
+        } else {
             area->height -= geo.height;
         }
     }
@@ -232,11 +232,11 @@ get_relative_position(Geometry_t base, Geometry_t target)
 void
 print_geometries()
 {
-    int i=0, monitor_id=0;
+    int i = 0, monitor_id = 0;
     char arg_buffer[64] = "\0";
     char key_buffer[32] = "\0";
 
-    for(monitor_id=0; monitor_id<settings.nb_monitors; monitor_id++){
+    for(monitor_id = 0; monitor_id < settings.nb_monitors; monitor_id++) {
         printf(COLOR_BOLD"Geometries (monitor %d):\n"COLOR_CLEAR, monitor_id);
 
         /* screen size */
@@ -246,17 +246,17 @@ print_geometries()
             h = settings.monitors[monitor_id].workarea.height;
         printf("  - "COLOR_BOLD"work area"COLOR_CLEAR"        (%d, %d), (%d, %d)\n", x, y, w, h);
 
-        for(i=0; i<MOVESLEN; i++){
-            if(bindings[monitor_id][i].data == NULL){
+        for(i = 0; i < MOVESLEN; i++) {
+            if(bindings[monitor_id][i].data == NULL) {
                 sprintf(arg_buffer, "(null)");
-            }else if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move){
+            } else if(bindings[monitor_id][i].data != NULL && bindings[monitor_id][i].callback == move) {
                 Geometry_t *data = (Geometry_t *) bindings[monitor_id][i].data;
                 sprintf(arg_buffer, "(%d, %d), (%d, %d)", data->x, data->y, data->width, data->height);
             }
 
-            if(bindings[monitor_id][i].keysym == XK_VoidSymbol){
+            if(bindings[monitor_id][i].keysym == XK_VoidSymbol) {
                 sprintf(key_buffer, "(null)");
-            }else{
+            } else {
                 sprintf(key_buffer, "[%s]", XKeysymToString(bindings[monitor_id][i].keysym));
             }
 
