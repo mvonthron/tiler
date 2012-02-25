@@ -200,6 +200,11 @@ void get_usable_area(int monitor_id, Geometry_t *area)
     free(window_list);
 }
 
+/** Return the position of a base geometry relatively to a target geometry
+ *
+ * Used mostly to find the positioning of the monitors
+ * @see Position_t
+ */
 Position_t
 get_relative_position(Geometry_t base, Geometry_t target)
 {
@@ -218,7 +223,12 @@ get_relative_position(Geometry_t base, Geometry_t target)
     return ret;
 }
 
-
+/** Return the parameters of each monitors
+ *
+ *
+ * Used mostly to find the positioning of the monitors
+ * @see bindings_reference
+ */
 void
 print_geometries()
 {

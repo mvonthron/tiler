@@ -64,7 +64,7 @@ Binding_t **bindings = NULL;
  */
 void grab(const KeyCode code, const unsigned int mod)
 {
-    huXGrabKey(display, code, mod,
+    XGrabKey(display, code, mod,
              XDefaultRootWindow(display), 1, GrabModeAsync, GrabModeAsync);
 }
 

@@ -42,7 +42,7 @@ static const struct option longopts[] = {
   {"verbose",     0, NULL, 'v'},
   {"version",     0, NULL, 'V'},
   {"help",        0, NULL, 'h'},
-  {NULL,          0, NULL, 0},
+  {NULL,          0, NULL,   0},
 };
 
 struct settings_t settings = {
@@ -59,7 +59,7 @@ struct settings_t settings = {
 };
 
 /**
- * 
+ * Print short help message and exit
  */
 void 
 usage()
@@ -78,8 +78,8 @@ usage()
   exit(0);
 }
 
-/**
- * 
+/** Print program version and build date and exit
+ * @see TILER_VERSION_STR
  */
 void
 version()
@@ -90,7 +90,8 @@ version()
 }
 
 /**
- * 
+ * Parse command line arguments
+ * @see Settings_t
  */
 void
 parse_opt(int argc, char **argv)
@@ -133,7 +134,7 @@ parse_opt(int argc, char **argv)
 }
 
 /**
- * 
+ * Parse a single line of the config file
  */
 static void 
 parse_line(char *token, char *value)
@@ -183,8 +184,10 @@ parse_line(char *token, char *value)
     add_binding(move, keysym); /* actual key binding */
 }
 
-/**
- * 
+/** Parse configuration file
+ *
+ * Currently only contains keybinding informations
+ * @param filename file to be processed
  */
 void
 parse_conf_file(char *filename)
@@ -213,6 +216,10 @@ parse_conf_file(char *filename)
   fclose(fd);
 }
 
+/** Retrieve informations about monitor configuration (number, size...)
+ *
+ * @note Xinerama extension is needed
+ */
 int
 get_monitors_config()
 {
@@ -289,7 +296,7 @@ print_config()
 
 
 /** Free allocated memory containing monitors information
-  */
+ */
 void free_config()
 {
     FREE(settings.monitors);
