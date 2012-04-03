@@ -5,7 +5,7 @@
 CC = gcc
 CFLAGS = -Wall #-DDEBUG
 LFLAGS = -lX11 -lm -lXinerama
-DEBUG = -g #-pg
+DEBUG =  #-pg
 BIN = tiler
 OBJS = geometries.o keybindings.o config.o callbacks.o xactions.o utils.o tiler.o
 
@@ -19,7 +19,7 @@ CONF = $(HOME)/.config/tiler.conf
 all: $(BIN)
 
 $(BIN): $(OBJS)
-	$(CC) $(DEBUG) $(LFLAGS) -o $(BIN) $?
+	$(CC) $? $(DEBUG) $(LFLAGS) -o $(BIN)
 
 .c.o:
 	$(CC) $(DEBUG) $(CFLAGS) -o $@ -c $?
